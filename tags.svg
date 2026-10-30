@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="display:block;background:#ffffff">
+  <title>Tags - Dark Yacht</title>
+  <desc>Tag and link console, drawn as an SVG document.</desc>
+
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml"
+         style="height:100%; overflow:auto; box-sizing:border-box; padding:20px; font-family:Arial,sans-serif; font-size:16px; color:#000000; background:#ffffff">
+
+      <style>
+        h1, h3 { margin-bottom: 5px; }
+        hr { margin: 10px 0; border: 0; border-top: 1px solid #ccc; }
+        .row {
+            margin: 10px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #ddd;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .small-note { color: #777777; font-size: 12px; }
+        .mini-btn {
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        .mini-btn:hover { background-color: #e8e8e8; border-color: #999; }
+        .mini-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .ok-btn { border-color: #28a745; color: #155724; }
+        .ok-btn:hover { background-color: #d4edda; border-color: #28a745; }
+        .bad-btn { border-color: #dc3545; color: #721c24; }
+        .bad-btn:hover { background-color: #f8d7da; border-color: #dc3545; }
+        [hidden] { display: none !important; }
+      </style>
+
+      <h1>Tags &#38; Links</h1>
+      <hr/>
+
+      <div id="gate">
+        <p>Enter the admin key.</p>
+        <input type="password" id="gateKey" placeholder="admin key" autocomplete="off"/>
+        <button type="button" id="gateBtn">Unlock</button>
+        <div class="small-note" id="gateStatus"></div>
+      </div>
+
+      <div id="app" hidden="hidden">
+        <p class="small-note">Tags come from whatever people post. Nothing needs approving &#8212; rename, merge or kill to tidy up.</p>
+
+        <h3>Tags in use</h3>
+        <div id="tagList"></div>
+        <div class="small-note" id="status"></div>
+        <hr/>
+
+        <h3>Links</h3>
+        <div id="linkList"></div>
+        <hr/>
+
+        <p class="small-note">
+          <a href="links.svg">link dump</a> &#183;
+          <a href="#" id="reloadBtn">refresh</a> &#183;
+          <a href="#" id="lockBtn">lock</a>
+        </p>
+      </div>
+
+      <script src="app-tags.js"></script>
+    </div>
+  </foreignObject>
+</svg>

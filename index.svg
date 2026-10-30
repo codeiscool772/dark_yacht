@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="display:block;background:#ffffff">
+  <title>Dark Y-CHT</title>
+  <desc>The hub page, drawn as an SVG document.</desc>
+
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml"
+         style="height:100%; overflow:auto; box-sizing:border-box; padding:20px; font-family:Arial,sans-serif; font-size:16px; color:#000000; background:#ffffff">
+
+      <style>
+        h1 { margin-bottom: 5px; }
+        hr { margin: 5px 0; border: 0; border-top: 1px solid #ccc; }
+        p { margin-top: 5px; }
+        h4 { margin-top: 0; margin-bottom: 2px; }
+        a { color: #0000ee; }
+      </style>
+
+      <h1>Welcome to Dark Y-CHT</h1>
+      <hr/>
+      <p>The ultimate hub for all things unblocked</p>
+      <hr/>
+
+      <p><a href="links.svg">link dump</a> &#183; <a href="tags.svg">tags</a></p>
+
+      <details>
+        <summary>G@mes link dump</summary>
+        <a href="https://aur.saintpauljinju.com">https://aur.saintpauljinju.com</a><br/>
+        <a href="https://bullpxbklol.s3.amazonaws.com/index.svg">https://bullpxbklol.s3.amazonaws.com/index.svg</a><br/>
+        <a href="https://sites.google.com/view/classroom6x/">https://sites.google.com/view/classroom6x/</a><br/>
+        <a href="https://kite.openmouth.com.ar">https://kite.openmouth.com.ar</a><br/>
+        <a href="https://care.herbsbynorthdaysimage.ca/">https://care.herbsbynorthdaysimage.ca/</a><br/>
+        <a href="https://storage.googleapis.com/math-homework/index.html">https://storage.googleapis.com/math-homework/index.html</a><br/>
+        <a href="https://chrisets.s3.us-east-1.amazonaws.com/index.svg">https://chrisets.s3.us-east-1.amazonaws.com/index.svg</a><br/>
+        <a href="https://agj.jashish.com.np">https://agj.jashish.com.np</a><br/>
+        <a href="https://cdn.jsdelivr.net/gh/drewalow860-ctrl/PeteZahStaticDone@959d81f/new.svg">https://cdn.jsdelivr.net/gh/drewalow860-ctrl/PeteZahStaticDone@959d81f/new.svg</a><br/>
+        <a href="https://cdn.jsdelivr.net/gh/NightProxy/DD-Static/dist/index.svg">https://cdn.jsdelivr.net/gh/NightProxy/DD-Static/dist/index.svg</a><br/>
+        <a href="https://the-wagonization.github.io/The-Wagon-Site/Pages/Bypasser'sChromekit.html">https://the-wagonization.github.io/The-Wagon-Site/Pages/Bypasser'sChromekit.html</a><br/>
+        <a href="https://f.freetls.fastly.net/">https://f.freetls.fastly.net/</a><br/>
+        <a href="https://extrememath.cyou/">https://extrememath.cyou/</a><br/>
+        <a href="https://luminal.cc/">https://luminal.cc/</a><br/>
+        <a href="https://8os.neocities.org/">https://8os.neocities.org/</a><br/>
+        <a href="https://fastly.jsdelivr.net/gh/username9927282/catclass@main/index.svg?5">https://fastly.jsdelivr.net/gh/username9927282/catclass@main/index.svg?5</a><br/>
+        <a href="https://quietgrid3717.24callout.co.uk/">https://quietgrid3717.24callout.co.uk/</a><br/>
+        <a href="https://cattitude-byte94.fukushimastudy.org">https://cattitude-byte94.fukushimastudy.org</a><br/>
+        <a href="https://oled-math.vercel.app">https://oled-math.vercel.app</a><br/>
+        <a href="https://devindaboicorporation.web.app/">https://devindaboicorporation.web.app/</a><br/>
+
+        <a href="links.svg"><button type="button">More links</button></a>
+      </details>
+      <hr/>
+
+      <div style="border: 2px solid red; padding: 10px; width: fit-content;">
+        <h4>EXPLOITS</h4>
+        <i>permanent stuff (not all of it) dont mess with unless ur a nerd</i>
+        <br/>
+        <a href="https://the-wagonization.github.io/The-Wagon-Site/Pages/Bypasser'sChromekit.html">https://the-wagonization.github.io/The-Wagon-Site/Pages/Bypasser'sChromekit.html</a>
+      </div>
+
+      <hr/>
+    </div>
+  </foreignObject>
+</svg>
