@@ -5,57 +5,394 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notepad - caek</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { margin-bottom: 5px; }
-        hr { margin: 10px 0; border: 0; border-top: 1px solid #ccc; }
+        * { box-sizing: border-box; }
+        body { min-height: 100vh; margin: 0; padding: 28px 16px; background: #CBD7F4; color: #171B2E; font-family: 'Plus Jakarta Sans', Arial, sans-serif; }
+        main { width: min(100%, 980px); margin: 0 auto; }
+        h1 { margin: 0 0 5px; }
+        h2 { margin: 0 0 8px; font-size: 20px; }
+        hr { margin: 18px 0; border: 0; border-top: 1px solid #D7DBE9; }
+        p { line-height: 1.5; }
+        [hidden] { display: none !important; }
         .mini-btn {
-            background-color: #f5f5f5;
-            border: 1px solid #ccc;
-            padding: 4px 10px;
-            border-radius: 4px;
+            min-height: 38px;
+            padding: 8px 12px;
+            border: 1px solid #D7DBE9;
+            border-radius: 8px;
+            background: #F3F5FC;
+            color: #171B2E;
             cursor: pointer;
+            font: inherit;
             font-size: 13px;
+            font-weight: 700;
         }
-        .mini-btn:hover { background-color: #e8e8e8; border-color: #999; }
-        .small-note { color: #777777; font-size: 12px; }
-        .bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+        .mini-btn:hover { border-color: #AEB7D5; background: #E7ECFB; }
+        .mini-btn:disabled { opacity: .6; cursor: wait; }
+        .primary-btn { border-color: #2B3FD6; background: #2B3FD6; color: #fff; }
+        .primary-btn:hover { border-color: #202FAE; background: #202FAE; }
+        .small-note { color: #5A6080; font-size: 13px; }
+        .panel { margin: 18px 0; padding: 20px; border: 1px solid #E5E8F2; border-radius: 14px; background: #fff; box-shadow: 0 12px 32px -24px rgba(23, 27, 46, .5); }
+        .room-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto; gap: 9px; margin-top: 14px; }
+        .field { width: 100%; min-width: 0; min-height: 40px; padding: 9px 11px; border: 1px solid #D7DBE9; border-radius: 8px; background: #fff; color: #171B2E; font: inherit; }
+        .field:focus, textarea:focus { outline: 2px solid #8E9AF0; outline-offset: 1px; border-color: #2B3FD6; }
+        #roomStatus, #status { display: block; min-height: 1.5em; margin-top: 8px; }
+        .room-header, .bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .room-header { justify-content: space-between; }
+        .bar { margin: 12px 0 10px; }
+        .room-editor { height: 52vh; }
         textarea {
+            display: block;
             width: 100%;
-            box-sizing: border-box;
             height: 65vh;
             min-height: 280px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 12px;
+            border: 1px solid #D7DBE9;
+            border-radius: 9px;
+            background: #fff;
+            color: #171B2E;
             font-family: Consolas, "Courier New", monospace;
             font-size: 14px;
             line-height: 1.5;
             resize: vertical;
         }
-        textarea:focus { outline: none; border-color: #888; }
+        textarea:focus { outline: 2px solid #8E9AF0; outline-offset: 1px; }
+        button:focus-visible, a:focus-visible { outline: 2px solid #2B3FD6; outline-offset: 2px; }
+        @media (max-width: 760px) {
+            body { padding: 16px 10px; }
+            .panel { padding: 15px; }
+            .room-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+            .room-form .field:first-child, .room-form .field:nth-child(2) { grid-column: span 2; }
+            .room-form button { width: 100%; }
+        }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
     </style>
 </head>
 <body>
-    <h1>Notepad</h1>
-    <div class="small-note"><a href="index.html">back to hub</a></div>
-    <hr>
+    <main>
+        <h1>Notepad</h1>
+        <div class="small-note"><a href="index.html">back to hub</a></div>
 
-    <div class="bar">
-        <button type="button" class="mini-btn" id="downloadBtn">Download .txt</button>
-        <button type="button" class="mini-btn" id="clearBtn">Clear</button>
-        <span class="small-note" id="status"></span>
-    </div>
+        <section class="panel" aria-labelledby="roomHeading">
+            <h2 id="roomHeading">Shared paste room</h2>
+            <p class="small-note">Create a room or open one by name. Rooms are unlisted; anyone who knows the name can enter unless you set a password. People in a room share and can edit the same note. Room contents are stored online, so do not use this for sensitive information.</p>
+            <div class="room-form" id="roomForm">
+                <input class="field" id="roomName" type="text" maxlength="40" autocomplete="off" aria-label="Room name" placeholder="Room name (3–40 letters, numbers, - or _)">
+                <input class="field" id="roomPassword" type="password" maxlength="256" autocomplete="off" aria-label="Optional room password" placeholder="Optional room password">
+                <button type="button" class="mini-btn primary-btn" id="createRoomBtn">Create room</button>
+                <button type="button" class="mini-btn" id="openRoomBtn">Open room</button>
+            </div>
+            <div class="small-note" id="roomStatus" role="status" aria-live="polite"></div>
+        </section>
 
-    <textarea id="note" spellcheck="true" placeholder="type here, it saves itself"></textarea>
+        <section class="panel" id="sharedRoom" aria-labelledby="sharedRoomTitle" hidden>
+            <div class="room-header">
+                <div>
+                    <h2 id="sharedRoomTitle">Shared note</h2>
+                    <span class="small-note">Room: <strong id="activeRoomName"></strong></span>
+                </div>
+                <button type="button" class="mini-btn" id="leaveRoomBtn">Leave room</button>
+            </div>
+            <textarea class="room-editor" id="sharedNote" maxlength="100000" spellcheck="true" placeholder="Write something for everyone in this room..."></textarea>
+            <div class="bar">
+                <button type="button" class="mini-btn" id="reloadRoomBtn" hidden>Load latest version</button>
+                <span class="small-note" id="sharedStatus" role="status" aria-live="polite">Changes save automatically.</span>
+            </div>
+        </section>
+
+        <section class="panel" aria-labelledby="localNoteHeading">
+            <h2 id="localNoteHeading">Private notepad</h2>
+            <p class="small-note">Saved only in this browser.</p>
+            <div class="bar">
+                <button type="button" class="mini-btn" id="downloadBtn">Download .txt</button>
+                <button type="button" class="mini-btn" id="clearBtn">Clear</button>
+                <span class="small-note" id="status" role="status" aria-live="polite"></span>
+            </div>
+            <textarea id="note" spellcheck="true" placeholder="type here, it saves itself"></textarea>
+        </section>
+    </main>
 
     <script>
     const STORE_KEY = "y_cht_note";
+    const DB_CONFIG = {
+        url: "https://ksksuhhxdnhxjlhheyrb.supabase.co",
+        anonKey: "sb_publishable_8_2RUMyvkF6wGNg5eWQaOw_NjIPp5fz",
+        timeoutMs: 15000,
+        pollMs: 5000
+    };
     const note = document.getElementById("note");
     const status = document.getElementById("status");
+    const roomNameInput = document.getElementById("roomName");
+    const roomPasswordInput = document.getElementById("roomPassword");
+    const roomStatus = document.getElementById("roomStatus");
+    const sharedRoom = document.getElementById("sharedRoom");
+    const sharedNote = document.getElementById("sharedNote");
+    const sharedStatus = document.getElementById("sharedStatus");
+    const reloadRoomBtn = document.getElementById("reloadRoomBtn");
+    const createRoomBtn = document.getElementById("createRoomBtn");
+    const openRoomBtn = document.getElementById("openRoomBtn");
     let timer = null;
+    let activeRoom = null;
+    let roomUpdatedAt = null;
+    let roomDirty = false;
+    let roomSaveTimer = null;
+    let roomPollTimer = null;
+    let roomSaveInFlight = false;
+    let roomRequestToken = 0;
 
     function setStatus(text) {
         status.textContent = text || "";
+    }
+
+    function setRoomStatus(text) {
+        roomStatus.textContent = text || "";
+    }
+
+    function normalizeRoomName(value) {
+        return String(value || "").trim().toLowerCase();
+    }
+
+    function validRoomName(value) {
+        return /^[a-z0-9][a-z0-9_-]{2,39}$/.test(value);
+    }
+
+    async function roomRequest(name, body) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), DB_CONFIG.timeoutMs);
+        let response;
+        try {
+            response = await fetch(DB_CONFIG.url.replace(/\/+$/, "") + "/rest/v1/rpc/" + name, {
+                method: "POST",
+                headers: {
+                    apikey: DB_CONFIG.anonKey,
+                    Authorization: "Bearer " + DB_CONFIG.anonKey,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body),
+                signal: controller.signal
+            });
+        } catch (err) {
+            throw new Error(err.name === "AbortError" ? "The room server timed out." : "Could not reach the room server.");
+        } finally {
+            clearTimeout(timeout);
+        }
+
+        const text = await response.text();
+        let data = null;
+        if (text) {
+            try {
+                data = JSON.parse(text);
+            } catch (err) {
+                throw new Error("The room server returned an unreadable response.");
+            }
+        }
+        if (!response.ok) {
+            throw new Error(data && (data.message || data.error_description || data.error) ||
+                "Room request failed (HTTP " + response.status + ").");
+        }
+        return data;
+    }
+
+    function getRoomCredentials() {
+        const name = normalizeRoomName(roomNameInput.value);
+        if (!validRoomName(name)) {
+            throw new Error("Room names must be 3–40 characters and use letters, numbers, hyphens, or underscores.");
+        }
+        const password = roomPasswordInput.value || null;
+        if (password && password.length > 256) throw new Error("Passwords can be at most 256 characters.");
+        return { name: name, password: password };
+    }
+
+    function setRoomButtonsDisabled(disabled) {
+        createRoomBtn.disabled = disabled;
+        openRoomBtn.disabled = disabled;
+    }
+
+    function enterRoom(room, password) {
+        activeRoom = { name: room.room_name, password: password };
+        roomUpdatedAt = room.updated_at;
+        sharedNote.value = room.content;
+        roomDirty = false;
+        roomRequestToken++;
+        document.getElementById("activeRoomName").textContent = room.room_name;
+        document.getElementById("roomForm").hidden = true;
+        sharedRoom.hidden = false;
+        reloadRoomBtn.hidden = true;
+        sharedStatus.textContent = "Changes save automatically.";
+        setRoomStatus("");
+        roomPasswordInput.value = "";
+        clearInterval(roomPollTimer);
+        roomPollTimer = setInterval(pollRoom, DB_CONFIG.pollMs);
+        sharedNote.focus();
+    }
+
+    async function createRoom() {
+        let credentials;
+        try {
+            credentials = getRoomCredentials();
+        } catch (err) {
+            setRoomStatus(err.message);
+            return;
+        }
+
+        setRoomButtonsDisabled(true);
+        setRoomStatus("Creating room...");
+        try {
+            const room = await roomRequest("create_note_room", {
+                p_room_name: credentials.name,
+                p_password: credentials.password
+            });
+            enterRoom(room, credentials.password);
+        } catch (err) {
+            setRoomStatus(err.message);
+        } finally {
+            setRoomButtonsDisabled(false);
+        }
+    }
+
+    async function openRoom() {
+        let credentials;
+        try {
+            credentials = getRoomCredentials();
+        } catch (err) {
+            setRoomStatus(err.message);
+            return;
+        }
+
+        setRoomButtonsDisabled(true);
+        setRoomStatus("Opening room...");
+        try {
+            const room = await roomRequest("open_note_room", {
+                p_room_name: credentials.name,
+                p_password: credentials.password
+            });
+            enterRoom(room, credentials.password);
+        } catch (err) {
+            setRoomStatus(err.message);
+        } finally {
+            setRoomButtonsDisabled(false);
+        }
+    }
+
+    function scheduleRoomSave() {
+        clearTimeout(roomSaveTimer);
+        roomDirty = true;
+        sharedStatus.textContent = "Unsaved changes...";
+        roomSaveTimer = setTimeout(saveRoom, 500);
+    }
+
+    async function saveRoom() {
+        if (!activeRoom || !roomDirty) return;
+        if (roomSaveInFlight) {
+            roomSaveTimer = setTimeout(saveRoom, 150);
+            return;
+        }
+        clearTimeout(roomSaveTimer);
+        const room = activeRoom;
+        const token = roomRequestToken;
+        const content = sharedNote.value;
+        roomSaveInFlight = true;
+        sharedStatus.textContent = "Saving...";
+
+        try {
+            const result = await roomRequest("save_note_room", {
+                p_room_name: room.name,
+                p_password: room.password,
+                p_content: content,
+                p_expected_updated_at: roomUpdatedAt
+            });
+            if (token !== roomRequestToken || activeRoom !== room) return;
+            roomUpdatedAt = result.updated_at;
+            if (sharedNote.value === content) {
+                roomDirty = false;
+                reloadRoomBtn.hidden = true;
+                sharedStatus.textContent = "Saved for everyone.";
+            } else {
+                roomDirty = true;
+                sharedStatus.textContent = "Saving latest changes...";
+                roomSaveTimer = setTimeout(saveRoom, 0);
+            }
+        } catch (err) {
+            if (token !== roomRequestToken || activeRoom !== room) return;
+            sharedStatus.textContent = err.message;
+            if (err.message.toLowerCase().includes("changed since")) {
+                reloadRoomBtn.hidden = false;
+            }
+        } finally {
+            if (token === roomRequestToken) {
+                roomSaveInFlight = false;
+                if (activeRoom === room && roomDirty && sharedNote.value !== content && !roomSaveTimer) {
+                    roomSaveTimer = setTimeout(saveRoom, 0);
+                }
+            }
+        }
+    }
+
+    async function pollRoom() {
+        if (!activeRoom || document.hidden) return;
+        const room = activeRoom;
+        const token = roomRequestToken;
+        try {
+            const latest = await roomRequest("open_note_room", {
+                p_room_name: room.name,
+                p_password: room.password
+            });
+            if (token !== roomRequestToken || activeRoom !== room || latest.updated_at === roomUpdatedAt) return;
+            if (roomDirty || roomSaveInFlight) {
+                sharedStatus.textContent = "Someone else updated this room. Load the latest version before saving.";
+                reloadRoomBtn.hidden = false;
+                return;
+            }
+            sharedNote.value = latest.content;
+            roomUpdatedAt = latest.updated_at;
+            sharedStatus.textContent = "Updated from another visitor.";
+        } catch (err) {
+            if (token === roomRequestToken && activeRoom === room) {
+                sharedStatus.textContent = "Could not sync: " + err.message;
+            }
+        }
+    }
+
+    async function reloadRoom() {
+        if (!activeRoom || roomSaveInFlight) return;
+        const room = activeRoom;
+        const token = roomRequestToken;
+        reloadRoomBtn.disabled = true;
+        sharedStatus.textContent = "Loading latest version...";
+        try {
+            const latest = await roomRequest("open_note_room", {
+                p_room_name: room.name,
+                p_password: room.password
+            });
+            if (token !== roomRequestToken || activeRoom !== room) return;
+            sharedNote.value = latest.content;
+            roomUpdatedAt = latest.updated_at;
+            roomDirty = false;
+            reloadRoomBtn.hidden = true;
+            sharedStatus.textContent = "Latest version loaded.";
+        } catch (err) {
+            if (token === roomRequestToken && activeRoom === room) sharedStatus.textContent = err.message;
+        } finally {
+            reloadRoomBtn.disabled = false;
+        }
+    }
+
+    function leaveRoom() {
+        if (roomSaveInFlight) {
+            sharedStatus.textContent = "Wait for the current save to finish before leaving.";
+            return;
+        }
+        if (roomDirty && !confirm("Leave this room and discard unsaved changes?")) return;
+        clearTimeout(roomSaveTimer);
+        clearInterval(roomPollTimer);
+        roomRequestToken++;
+        activeRoom = null;
+        roomUpdatedAt = null;
+        roomDirty = false;
+        roomSaveInFlight = false;
+        sharedNote.value = "";
+        sharedRoom.hidden = true;
+        document.getElementById("roomForm").hidden = false;
+        setRoomStatus("");
+        roomNameInput.focus();
     }
 
     try {
@@ -95,6 +432,15 @@
         }
         setStatus("cleared");
         note.focus();
+    });
+
+    createRoomBtn.addEventListener("click", createRoom);
+    openRoomBtn.addEventListener("click", openRoom);
+    document.getElementById("leaveRoomBtn").addEventListener("click", leaveRoom);
+    document.getElementById("reloadRoomBtn").addEventListener("click", reloadRoom);
+    sharedNote.addEventListener("input", scheduleRoomSave);
+    roomPasswordInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") openRoom();
     });
     </script>
 </body>

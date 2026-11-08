@@ -137,6 +137,21 @@
         .hub .app-card:hover { background: #E7ECFB; }
         .hub .app-card b { margin-bottom: 3px; }
         .hub .app-card span { color: #5A6080; }
+        .hub .mirror-section { margin: 18px 16px; padding: 16px; border: 1px solid #E5E8F2; border-radius: 10px; background: #fff; }
+        .hub .mirror-section h2 { margin: 0; font-size: 18px; }
+        .hub .mirror-section p { margin: 4px 0 12px; color: #5A6080; font-size: 13px; }
+        .hub .mirror-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 8px; }
+        .hub .mirror-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; min-width: 0; padding: 8px; border: 1px solid #E5E8F2; border-radius: 7px; background: #F3F5FC; }
+        .hub .mirror-link { display: grid; gap: 3px; min-width: 0; padding: 2px 4px; color: #2B3FD6; overflow-wrap: anywhere; }
+        .hub .mirror-link:hover { background: #E7ECFB; }
+        .hub .mirror-link span { color: #5A6080; font-size: 12px; }
+        .hub .mirror-link strong { font-size: 14px; }
+        .hub .mirror-copy { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid #CBD3F1; border-radius: 5px; background: #fff; color: #2B3FD6; cursor: pointer; }
+        .hub .mirror-copy svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+        .hub .mirror-copy .copy-state-icon { display: none; }
+        .hub .mirror-copy[data-state="copied"] .copy-icon, .hub .mirror-copy[data-state="failed"] .copy-icon { display: none; }
+        .hub .mirror-copy[data-state="copied"] .copied-icon, .hub .mirror-copy[data-state="failed"] .failed-icon { display: block; }
+        .hub .mirror-copy:hover { background: #E7ECFB; }
         .hub &gt; .card &gt; h4 { padding: 12px 16px 0; }
         .dark-mode .hub { background: #171B2E; color: #F3F5FC; }
         .dark-mode .hub .card { background: #20243A; }
@@ -152,6 +167,13 @@
         .dark-mode .hub .distractions-feature summary:hover { background: #343A58; }
         .dark-mode .hub .distractions-feature-note { color: #B9C0DA; }
         .dark-mode .hub .app-card:hover, .dark-mode .hub .quick-link-grid a:hover { background: #343A58; }
+        .dark-mode .hub .mirror-section { border-color: #3A405B; background: #20243A; }
+        .dark-mode .hub .mirror-section p, .dark-mode .hub .mirror-link span { color: #B9C0DA; }
+        .dark-mode .hub .mirror-item { border-color: #3A405B; background: #2B304B; }
+        .dark-mode .hub .mirror-link { color: #C5D0FF; }
+        .dark-mode .hub .mirror-link:hover { background: #343A58; }
+        .dark-mode .hub .mirror-copy { border-color: #515A7D; background: #20243A; color: #C5D0FF; }
+        .dark-mode .hub .mirror-copy:hover { background: #343A58; }
         @media (max-width: 480px) {
             .hub { padding: 0; }
             .hub .card { border-radius: 0; }
@@ -215,11 +237,75 @@
               <a class="app-card" href="src/stopwatch.html"><b>Stopwatch</b><span>start, lap, reset</span></a>
       
           </div>
+          <section class="mirror-section" aria-labelledby="mirrorHeading">
+              <h2 id="mirrorHeading">Links to caek</h2>
+              <p>Open the homepage or use a CDN copy of the Link Dump.</p>
+              <div class="mirror-grid">
+                  <div class="mirror-item">
+                      <a class="mirror-link" href="https://caek-woad.vercel.app/" target="_blank" rel="noopener noreferrer">
+                          <span>Main website</span><strong>Vercel</strong>
+                      </a>
+                      <button class="mirror-copy" type="button" aria-label="Copy Vercel URL" title="Copy Vercel URL">
+                          <svg class="copy-icon" viewbox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg><svg class="copy-state-icon copied-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg><svg class="copy-state-icon failed-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="M12 8v5"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0z"></path></svg>
+                      </button>
+                  </div>
+                  <div class="mirror-item">
+                      <a class="mirror-link" href="https://cdn.statically.io/gh/codeiscool772/dark_yacht@main/svg/index.svg" target="_blank" rel="noopener noreferrer">
+                          <span>Homepage · CDN</span><strong>Statically</strong>
+                      </a>
+                      <button class="mirror-copy" type="button" aria-label="Copy Statically homepage URL" title="Copy Statically homepage URL">
+                          <svg class="copy-icon" viewbox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg><svg class="copy-state-icon copied-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg><svg class="copy-state-icon failed-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="M12 8v5"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0z"></path></svg>
+                      </button>
+                  </div>
+                  <div class="mirror-item">
+                      <a class="mirror-link" href="https://cdn.statically.io/gh/codeiscool772/dark_yacht@main/svg/links.svg" target="_blank" rel="noopener noreferrer">
+                          <span>Link Dump · CDN</span><strong>Statically</strong>
+                      </a>
+                      <button class="mirror-copy" type="button" aria-label="Copy Statically Link Dump URL" title="Copy Statically Link Dump URL">
+                          <svg class="copy-icon" viewbox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg><svg class="copy-state-icon copied-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg><svg class="copy-state-icon failed-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="M12 8v5"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0z"></path></svg>
+                      </button>
+                  </div>
+                  <div class="mirror-item">
+                      <a class="mirror-link" href="https://cdn.jsdelivr.net/gh/codeiscool772/dark_yacht@main/svg/index.svg" target="_blank" rel="noopener noreferrer">
+                          <span>Homepage · CDN</span><strong>jsDelivr</strong>
+                      </a>
+                      <button class="mirror-copy" type="button" aria-label="Copy jsDelivr homepage URL" title="Copy jsDelivr homepage URL">
+                          <svg class="copy-icon" viewbox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg><svg class="copy-state-icon copied-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg><svg class="copy-state-icon failed-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="M12 8v5"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0z"></path></svg>
+                      </button>
+                  </div>
+                  <div class="mirror-item">
+                      <a class="mirror-link" href="https://cdn.jsdelivr.net/gh/codeiscool772/dark_yacht@main/svg/links.svg" target="_blank" rel="noopener noreferrer">
+                          <span>Link Dump · CDN</span><strong>jsDelivr</strong>
+                      </a>
+                      <button class="mirror-copy" type="button" aria-label="Copy jsDelivr Link Dump URL" title="Copy jsDelivr Link Dump URL">
+                          <svg class="copy-icon" viewbox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg><svg class="copy-state-icon copied-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg><svg class="copy-state-icon failed-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="M12 8v5"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0z"></path></svg>
+                      </button>
+                  </div>
+                  <div class="mirror-item">
+                      <a class="mirror-link" href="https://raw.githack.com/codeiscool772/dark_yacht/main/svg/index.svg" target="_blank" rel="noopener noreferrer">
+                          <span>Homepage · CDN</span><strong>Raw.githack</strong>
+                      </a>
+                      <button class="mirror-copy" type="button" aria-label="Copy Raw.githack homepage URL" title="Copy Raw.githack homepage URL">
+                          <svg class="copy-icon" viewbox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg><svg class="copy-state-icon copied-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg><svg class="copy-state-icon failed-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="M12 8v5"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0z"></path></svg>
+                      </button>
+                  </div>
+                  <div class="mirror-item">
+                      <a class="mirror-link" href="https://raw.githack.com/codeiscool772/dark_yacht/main/svg/links.svg" target="_blank" rel="noopener noreferrer">
+                          <span>Link Dump · CDN</span><strong>Raw.githack</strong>
+                      </a>
+                      <button class="mirror-copy" type="button" aria-label="Copy Raw.githack Link Dump URL" title="Copy Raw.githack Link Dump URL">
+                          <svg class="copy-icon" viewbox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg>
+                          <svg class="copy-state-icon copied-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>
+                          <svg class="copy-state-icon failed-icon" viewbox="0 0 24 24" aria-hidden="true"><path d="M12 8v5"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0z"></path></svg>
+                      </button>
+                  </div>
+              </div>
+          </section>
       <hr/>
       
       </article></main>
 
-      <script src="app-hub.js"></script>
+      <script src="svg/app-hub.js"></script>
     </div>
   </foreignObject>
 </svg>
