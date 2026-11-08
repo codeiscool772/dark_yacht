@@ -3,12 +3,10 @@
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
 
-
-    /* Same database as tags-admin.html. */
+/* Same database as tags-admin.html. */
     const DB_CONFIG = {
-        url: "https://ready-turtle-126853.upstash.io",
-        token: "gQAAAAAAAe-FAAIgcDIxZjk4YzY4YWI1ZmE0YTQ5YWI3MDcxYTkyYjJjZGMyYg",
-        key: "y_cht_global_links",
+        url: "https://ksksuhhxdnhxjlhheyrb.supabase.co",
+        anonKey: "sb_publishable_8_2RUMyvkF6wGNg5eWQaOw_NjIPp5fz",
         pollMs: 15000,
         timeoutMs: 15000
     };
@@ -19,113 +17,95 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
     const MENU_SIZE = 12;
 
     const DB = {
-        async call(command) {
+        async request(path, options = {}) {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), DB_CONFIG.timeoutMs);
-
             let response;
             try {
-                response = await fetch(DB_CONFIG.url, {
-                    method: "POST",
+                response = await fetch(DB_CONFIG.url.replace(/\/+$/, "") + path, {
+                    method: options.method || "GET",
                     headers: {
-                        Authorization: "Bearer " + DB_CONFIG.token,
-                        "Content-Type": "application/json"
+                        apikey: DB_CONFIG.anonKey,
+                        Authorization: "Bearer " + DB_CONFIG.anonKey,
+                        ...(options.body ? { "Content-Type": "application/json" } : {}),
+                        ...(options.prefer ? { Prefer: options.prefer } : {})
                     },
-                    body: JSON.stringify(command),
+                    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
                     signal: controller.signal
                 });
             } catch (err) {
-                throw new Error(err.name === "AbortError" ? "database timed out" : "could not reach the database");
+                throw new Error(err.name === "AbortError" ? "Supabase timed out" : "could not reach Supabase");
             } finally {
                 clearTimeout(timer);
             }
 
             const text = await response.text();
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (err) {
-                throw new Error("database returned HTTP " + response.status);
+            let data = null;
+            if (text) {
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    throw new Error("Supabase returned HTTP " + response.status);
+                }
             }
-            if (!response.ok || data.error) {
-                throw new Error(data.error || "database returned HTTP " + response.status);
+            if (!response.ok) {
+                throw new Error(data && (data.message || data.error_description || data.error) ||
+                    "Supabase returned HTTP " + response.status);
             }
-            return data.result;
+            return data;
         },
 
         async addLink(url, tag) {
-            return this.call(["RPUSH", DB_CONFIG.key, [url, tag, 0, 0].join("|||")]);
+            return this.request("/rest/v1/links", {
+                method: "POST",
+                body: { url: url, tag: tag },
+                prefer: "return=minimal"
+            });
         },
 
         async getLinks() {
-            const raw = (await this.call(["LRANGE", DB_CONFIG.key, 0, -1])) || [];
-            return { raw: raw, parsed: raw.map(parseEntry).filter(Boolean) };
+            const rows = [];
+            let lastId = null;
+            let page;
+            do {
+                const after = lastId === null ? "" : "&id=gt." + lastId;
+                page = await this.request(
+                    "/rest/v1/links?select=id,url,tag,likes,reports&order=id.asc&limit=1000" + after
+                );
+                rows.push(...page);
+                if (page.length) lastId = page[page.length - 1].id;
+            } while (page.length === 1000);
+
+            return {
+                raw: rows.map((row) => JSON.stringify(row)),
+                parsed: rows.map(parseEntry).filter(Boolean)
+            };
         },
 
-        /* Read-modify-write in Lua so two voters can't overwrite each other. */
-        async updateMetric(index, metric, delta) {
-            const script = `
-                local item = redis.call("LINDEX", KEYS[1], ARGV[1])
-                if not item then
-                    return redis.error_reply("That link is gone. Refresh.")
-                end
-
-                local fields = {}
-                local startAt = 1
-                while true do
-                    local first, last = string.find(item, "|||", startAt, true)
-                    if not first then
-                        fields[#fields + 1] = string.sub(item, startAt)
-                        break
-                    end
-                    fields[#fields + 1] = string.sub(item, startAt, first - 1)
-                    startAt = last + 1
-                end
-
-                if #fields < 2 or fields[1] == "" then
-                    return redis.error_reply("That entry is malformed.")
-                end
-
-                local likes = tonumber(fields[3]) or 0
-                local reports = tonumber(fields[4]) or 0
-                local change = tonumber(ARGV[3]) or 0
-
-                if ARGV[2] == "report" then
-                    reports = math.max(0, reports + change)
-                else
-                    likes = math.max(0, likes + change)
-                end
-
-                local updated = fields[1] .. "|||" .. fields[2] .. "|||" .. likes .. "|||" .. reports
-                redis.call("LSET", KEYS[1], ARGV[1], updated)
-                return updated
-            `;
-
-            return this.call(["EVAL", script, 1, DB_CONFIG.key, index, metric, delta]);
+        async updateMetric(id, metric, delta) {
+            return this.request("/rest/v1/rpc/update_link_metric", {
+                method: "POST",
+                body: {
+                    p_id: id,
+                    p_metric: metric === "report" ? "reports" : "likes",
+                    p_delta: delta
+                }
+            });
         }
     };
 
-    /* Entries were stored with two, three, four or five fields over time, so
-       read positionally and ignore anything past the counters. */
-    function parseEntry(raw, index) {
-        if (typeof raw !== "string" || !raw) return null;
-
-        const parts = raw.split("|||");
-        if (parts.length < 2) return null;
-
-        const url = normalizeUrl(parts[0]);
+    function parseEntry(row) {
+        if (!row || typeof row.url !== "string") return null;
+        const url = normalizeUrl(row.url);
         if (!url) return null;
 
-        const likes = Number.parseInt(parts[2], 10);
-        const reports = Number.parseInt(parts[3], 10);
-
         return {
-            id: index,
+            id: Number(row.id),
             url: url,
-            label: parts[0].trim(),
-            tag: normalizeTag(parts[1]) || FALLBACK_TAG,
-            likes: Number.isFinite(likes) ? likes : 0,
-            reports: Number.isFinite(reports) ? reports : 0
+            label: row.url.trim(),
+            tag: normalizeTag(row.tag) || FALLBACK_TAG,
+            likes: Number(row.likes) || 0,
+            reports: Number(row.reports) || 0
         };
     }
 
@@ -335,9 +315,9 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
         tagLabel.textContent = `[${item.tag}]`;
 
         const score = makeEl("span");
-        score.style.fontSize = "13px";
+        score.className = "link-score";
         const scoreNumber = makeEl("span");
-        scoreNumber.style.color = item.likes >= 0 ? "green" : "red";
+        scoreNumber.className = "score-number" + (item.likes < 0 ? " negative" : "");
         scoreNumber.textContent = item.likes;
         score.append("Score: ", scoreNumber);
 
@@ -378,7 +358,7 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
     }
 
     function sortLinks(list) {
-        // The list arrives newest-first already; "top score" only reorders.
+        // The list arrives oldest-first; "top score" only reorders.
         if (sortMode !== "score") return list;
         return [...list].sort((a, b) => (b.likes - a.likes) || (b.id - a.id));
     }
@@ -400,7 +380,7 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
         }
 
         const newestFirst = [];
-        // Newest last in Redis, so walk it backwards.
+        // Newest rows have the largest IDs, so walk them backwards.
         for (let i = links.length - 1; i >= 0; i--) newestFirst.push(links[i]);
 
         const fragment = document.createDocumentFragment();
@@ -587,4 +567,3 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
 
     renderLinks(true);
     startPolling();
-    

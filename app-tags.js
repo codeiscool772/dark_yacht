@@ -3,17 +3,14 @@
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
 
-
-    /* Same database as link-dump.html. Change ADMIN_KEY before sharing. */
+/* Use the Supabase project URL and public anon key (never a service-role key). */
     const DB_CONFIG = {
-        url: "https://ready-turtle-126853.upstash.io",
-        token: "gQAAAAAAAe-FAAIgcDIxZjk4YzY4YWI1ZmE0YTQ5YWI3MDcxYTkyYjJjZGMyYg",
-        key: "y_cht_global_links",
+        url: "https://ksksuhhxdnhxjlhheyrb.supabase.co",
+        anonKey: "sb_publishable_8_2RUMyvkF6wGNg5eWQaOw_NjIPp5fz",
         timeoutMs: 15000
     };
 
-    const ADMIN_KEY = "i.love.kindles";
-    const SESSION_KEY = "y_cht_admin_unlocked";
+    const SESSION_KEY = "y_cht_supabase_admin_session";
     const FALLBACK_TAG = "general";
 
     function normalizeTag(value) {
@@ -27,82 +24,121 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
     }
 
     const DB = {
-        async call(command) {
+        async send(path, options = {}, accessToken = null) {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), DB_CONFIG.timeoutMs);
-
             let response;
             try {
-                response = await fetch(DB_CONFIG.url, {
-                    method: "POST",
+                response = await fetch(DB_CONFIG.url.replace(/\/+$/, "") + path, {
+                    method: options.method || "GET",
                     headers: {
-                        Authorization: "Bearer " + DB_CONFIG.token,
-                        "Content-Type": "application/json"
+                        apikey: DB_CONFIG.anonKey,
+                        Authorization: "Bearer " + (accessToken || DB_CONFIG.anonKey),
+                        ...(options.body ? { "Content-Type": "application/json" } : {}),
+                        ...(options.prefer ? { Prefer: options.prefer } : {})
                     },
-                    body: JSON.stringify(command),
+                    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
                     signal: controller.signal
                 });
             } catch (err) {
-                throw new Error(err.name === "AbortError" ? "database timed out" : "could not reach the database");
+                throw new Error(err.name === "AbortError" ? "Supabase timed out" : "could not reach Supabase");
             } finally {
                 clearTimeout(timer);
             }
 
             const text = await response.text();
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (err) {
-                throw new Error("database returned HTTP " + response.status);
+            let data = null;
+            if (text) {
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    throw new Error("Supabase returned HTTP " + response.status);
+                }
             }
-            if (!response.ok || data.error) {
-                throw new Error(data.error || "database returned HTTP " + response.status);
+            if (!response.ok) {
+                throw new Error(data && (data.message || data.error_description || data.error) ||
+                    "Supabase returned HTTP " + response.status);
             }
-            return data.result;
+            return data;
         },
 
-        /* Rewrite the tag field of every entry that carries `from`. One pass in
-           Lua so a link is never half-renamed. Returns how many rows changed. */
+        saveSession(session) {
+            session.expires_at = Date.now() + session.expires_in * 1000;
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        },
+
+        getSession() {
+            const stored = sessionStorage.getItem(SESSION_KEY);
+            return stored ? JSON.parse(stored) : null;
+        },
+
+        async accessToken() {
+            const session = this.getSession();
+            if (!session) return null;
+            if (session.expires_at > Date.now() + 60000) return session.access_token;
+
+            const refreshed = await this.send("/auth/v1/token?grant_type=refresh_token", {
+                method: "POST",
+                body: { refresh_token: session.refresh_token }
+            });
+            this.saveSession(refreshed);
+            return refreshed.access_token;
+        },
+
+        async request(path, options = {}) {
+            return this.send(path, options, await this.accessToken());
+        },
+
+        async login(email, password) {
+            const session = await this.send("/auth/v1/token?grant_type=password", {
+                method: "POST",
+                body: { email: email, password: password }
+            });
+            this.saveSession(session);
+        },
+
+        async logout() {
+            const session = this.getSession();
+            try {
+                if (session) {
+                    await this.send("/auth/v1/logout", { method: "POST" }, session.access_token);
+                }
+            } finally {
+                sessionStorage.removeItem(SESSION_KEY);
+            }
+        },
+
+        async isAdmin() {
+            return this.request("/rest/v1/rpc/is_link_admin", { method: "POST", body: {} });
+        },
+
+        async getLinks() {
+            const rows = [];
+            let lastId = null;
+            let page;
+            do {
+                const after = lastId === null ? "" : "&id=gt." + lastId;
+                page = await this.request(
+                    "/rest/v1/links?select=id,url,tag,likes,reports&order=id.asc&limit=1000" + after
+                );
+                rows.push(...page);
+                if (page.length) lastId = page[page.length - 1].id;
+            } while (page.length === 1000);
+            return rows;
+        },
+
         async retag(from, to) {
-            const script = `
-                local n = redis.call("LLEN", KEYS[1])
-                local from = string.lower(ARGV[1])
-                local to = ARGV[2]
-                local changed = 0
-
-                for i = 0, n - 1 do
-                    local item = redis.call("LINDEX", KEYS[1], i)
-                    if item then
-                        local fields = {}
-                        local startAt = 1
-                        while true do
-                            local first, last = string.find(item, "|||", startAt, true)
-                            if not first then
-                                fields[#fields + 1] = string.sub(item, startAt)
-                                break
-                            end
-                            fields[#fields + 1] = string.sub(item, startAt, first - 1)
-                            startAt = last + 1
-                        end
-
-                        if #fields >= 2 and string.lower(fields[2]) == from then
-                            fields[2] = to
-                            redis.call("LSET", KEYS[1], i, table.concat(fields, "|||"))
-                            changed = changed + 1
-                        end
-                    end
-                end
-
-                return changed
-            `;
-
-            return this.call(["EVAL", script, 1, DB_CONFIG.key, from, to]);
+            return this.request("/rest/v1/rpc/retag_links", {
+                method: "POST",
+                body: { p_from: from, p_to: to }
+            });
         }
     };
 
     const els = {
         gate: document.getElementById("gate"),
-        gateKey: document.getElementById("gateKey"),
+        gateEmail: document.getElementById("gateEmail"),
+        gatePassword: document.getElementById("gatePassword"),
         gateBtn: document.getElementById("gateBtn"),
         gateStatus: document.getElementById("gateStatus"),
         app: document.getElementById("app"),
@@ -120,20 +156,19 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
         els.status.textContent = text || "";
     }
 
-    function tagOf(raw) {
-        const parts = String(raw).split("|||");
-        return parts.length > 1 ? normalizeTag(parts[1]) || FALLBACK_TAG : "";
+    function tagOf(link) {
+        return normalizeTag(link.tag) || FALLBACK_TAG;
     }
 
     async function load(keepStatus) {
         if (!keepStatus) setStatus("Loading...");
 
         try {
-            state.links = (await DB.call(["LRANGE", DB_CONFIG.key, 0, -1])) || [];
+            state.links = await DB.getLinks();
 
             const counts = new Map();
-            for (const raw of state.links) {
-                const tag = tagOf(raw);
+            for (const link of state.links) {
+                const tag = tagOf(link);
                 if (!tag) continue;
                 counts.set(tag, (counts.get(tag) || 0) + 1);
             }
@@ -201,15 +236,14 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
         return row;
     }
 
-    function buildLinkRow(raw) {
-        const parts = String(raw).split("|||");
+    function buildLinkRow(link) {
         const row = makeEl("div");
         row.className = "row";
 
         const tag = makeEl("b");
-        tag.textContent = "[" + (parts[1] || "none") + "]";
+        tag.textContent = "[" + (link.tag || "none") + "]";
 
-        const rawUrl = (parts[0] || "").trim();
+        const rawUrl = (link.url || "").trim();
         const url = makeEl("a");
         if (rawUrl) {
             url.href = /^[a-z][a-z0-9+.-]*:\/\//i.test(rawUrl) ? rawUrl : "https://" + rawUrl;
@@ -221,14 +255,14 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
 
         const counts = makeEl("span");
         counts.className = "small-note";
-        counts.textContent = "score " + (Number.parseInt(parts[2], 10) || 0) +
-            " · reports " + (Number.parseInt(parts[3], 10) || 0);
+        counts.textContent = "score " + (Number(link.likes) || 0) +
+            " · reports " + (Number(link.reports) || 0);
 
         const remove = makeEl("button");
         remove.type = "button";
         remove.className = "mini-btn bad-btn";
         remove.textContent = "take down";
-        remove.addEventListener("click", () => removeLink(raw, remove));
+        remove.addEventListener("click", () => removeLink(link.id, remove));
 
         row.append(tag, url, counts, remove);
         return row;
@@ -277,7 +311,7 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
         applyRetag(tag, FALLBACK_TAG, button, "Killed [" + tag + "], {n} link(s) moved to [" + FALLBACK_TAG + "].");
     }
 
-    async function removeLink(raw, button) {
+    async function removeLink(id, button) {
         if (busy) return;
         if (!confirm("Take this link down?")) return;
 
@@ -286,9 +320,10 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
         setStatus("Removing...");
 
         try {
-            // LREM by exact value: the stored entry includes its counters, so this
-            // removes that one row and nothing else.
-            await DB.call(["LREM", DB_CONFIG.key, 0, raw]);
+            await DB.request(
+                "/rest/v1/links?id=eq." + encodeURIComponent(id),
+                { method: "DELETE", prefer: "return=minimal" }
+            );
             await load(true);
             setStatus("Link removed.");
         } catch (err) {
@@ -299,24 +334,34 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
         }
     }
 
-    function unlock() {
-        localStorage.setItem(SESSION_KEY, "1");
+    async function unlock(signIn) {
+        els.gateBtn.disabled = true;
+        els.gateStatus.textContent = "Signing in...";
+        try {
+            if (signIn) {
+                await DB.login(els.gateEmail.value.trim(), els.gatePassword.value);
+            }
+            if (!(await DB.isAdmin())) {
+                await DB.logout();
+                throw new Error("This account is not authorized to manage links.");
+            }
+        } catch (err) {
+            els.gateStatus.textContent = "Sign-in failed: " + err.message;
+            els.gateBtn.disabled = false;
+            return;
+        }
+
         els.gate.hidden = true;
         els.app.hidden = false;
+        els.gatePassword.value = "";
         load();
     }
 
     els.gateBtn.addEventListener("click", () => {
-        if (els.gateKey.value === ADMIN_KEY) {
-            els.gateStatus.textContent = "";
-            unlock();
-        } else {
-            els.gateStatus.textContent = "Wrong key.";
-            els.gateKey.select();
-        }
+        unlock(true);
     });
 
-    els.gateKey.addEventListener("keydown", (event) => {
+    els.gatePassword.addEventListener("keydown", (event) => {
         if (event.key === "Enter") els.gateBtn.click();
     });
 
@@ -325,18 +370,21 @@ function makeEl(name) { return document.createElementNS(XHTML_NS, name); }
         load();
     });
 
-    els.lockBtn.addEventListener("click", (event) => {
+    els.lockBtn.addEventListener("click", async (event) => {
         event.preventDefault();
-        localStorage.removeItem(SESSION_KEY);
+        try {
+            await DB.logout();
+        } catch (err) {
+            els.gateStatus.textContent = "Signed out locally; Supabase logout failed: " + err.message;
+        }
         els.app.hidden = true;
         els.gate.hidden = false;
-        els.gateKey.value = "";
-        els.gateKey.focus();
+        els.gateEmail.focus();
+        els.gateBtn.disabled = false;
     });
 
-    if (localStorage.getItem(SESSION_KEY) === "1") {
-        unlock();
+    if (DB.getSession()) {
+        unlock(false);
     } else {
-        els.gateKey.focus();
+        els.gateEmail.focus();
     }
-    
