@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Links - caek</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: #CBD7F4;
+            color: #171B2E;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+        button, input, select { font: inherit; }
+        a { color: #2B3FD6; }
+        [hidden] { display: none !important; }
+        .directory { width: min(100% - 32px, 1040px); margin: 32px auto; }
+        .directory-header, .panel {
+            border: 1px solid #E5E8F2;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 12px 32px -24px rgba(23, 27, 46, .5);
+        }
+        .directory-header { padding: 24px; border-top: 6px solid #2B3FD6; }
+        .directory-header h1 { margin: 0; font-size: clamp(24px, 4vw, 34px); line-height: 1.15; }
+        .directory-header p { margin: 8px 0 18px; color: #5A6080; }
+        .directory-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+        .directory-nav a {
+            padding: 8px 12px;
+            border-radius: 7px;
+            background: #F3F5FC;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .directory-nav a:hover { background: #E7ECFB; }
+        .directory-content { display: grid; gap: 16px; margin-top: 16px; }
+        .panel { min-width: 0; padding: 20px; }
+        .panel h2 { margin: 0 0 14px; font-size: 20px; }
+        .submit-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 210px) auto; gap: 10px; }
+        .field {
+            width: 100%;
+            min-width: 0;
+            padding: 10px 12px;
+            border: 1px solid #D7DBE9;
+            border-radius: 8px;
+            background: #fff;
+            color: #171B2E;
+        }
+        .field:focus { outline: 2px solid #8E9AF0; outline-offset: 1px; border-color: #2B3FD6; }
+        .primary-btn, .mini-btn {
+            display: inline-flex;
+            min-height: 38px;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border: 1px solid #D7DBE9;
+            border-radius: 8px;
+            background: #F3F5FC;
+            color: #171B2E;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: background .15s, border-color .15s, transform .15s;
+        }
+        .primary-btn { border-color: #2B3FD6; background: #2B3FD6; color: #fff; }
+        .primary-btn:hover { background: #202FAE; }
+        .mini-btn:hover { border-color: #AEB7D5; background: #E7ECFB; }
+        .mini-btn:disabled, .primary-btn:disabled { opacity: .6; cursor: not-allowed; }
+        button:focus-visible, a:focus-visible { outline: 2px solid #2B3FD6; outline-offset: 2px; }
+        .small-note { color: #5A6080; font-size: 13px; }
+        #postStatus { min-height: 1.3em; margin-top: 8px; }
+        .sort-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .sort-label { margin-right: 2px; color: #5A6080; font-size: 13px; font-weight: 700; }
+        .mini-btn.active-sort { border-color: #2B3FD6; background: #E7ECFB; color: #202FAE; }
+        .link-list { display: grid; gap: 9px; }
+        .link-row {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            border: 1px solid #E5E8F2;
+            border-radius: 10px;
+            background: #fff;
+        }
+        .link-row > a {
+            min-width: 0;
+            flex: 1 1 100%;
+            overflow: hidden;
+            color: #2B3FD6;
+            font-weight: 700;
+            text-decoration: none;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .link-row > a:hover { text-decoration: underline; }
+        .tag-label { padding: 4px 8px; border-radius: 999px; background: #F3F5FC; color: #4A5070; font-size: 12px; font-weight: 700; }
+        .link-score { color: #5A6080; font-size: 13px; font-weight: 700; }
+        .score-number { color: #287A4B; }
+        .score-number.negative { color: #C3485B; }
+        .mini-btn.active-like { border-color: #70B68B; background: #E2F3E8; color: #24633D; }
+        .mini-btn.active-dislike, .mini-btn-report:hover { border-color: #E6A0A8; background: #FBEAEC; color: #9B3541; }
+        .mini-btn.active-report { border-color: #E7C66A; background: #FFF4D6; color: #795B13; }
+        .directory-footer { padding: 4px 4px 0; }
+        @media (max-width: 700px) {
+            .directory { width: min(100% - 20px, 1040px); margin: 10px auto; }
+            .directory-header, .panel { padding: 16px; border-radius: 12px; }
+            .submit-grid { grid-template-columns: minmax(0, 1fr); }
+            .link-row { gap: 7px; }
+            .link-row .mini-btn { min-height: 36px; padding: 7px 9px; }
+        }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+    </style>
+</head>
+<body>
+    <main class="directory">
+        <header class="directory-header">
+            <h1>caek Link Directory</h1>
+            <p>Discover and share links with the community.</p>
+            <nav class="directory-nav" aria-label="Site navigation">
+                <a href="index.html">Home</a>
+                <a href="tags-admin.html">Tags</a>
+            </nav>
+        </header>
+        <div class="directory-content">
+            <section class="panel" aria-labelledby="submitHeading">
+                <h2 id="submitHeading">Share a link</h2>
+                <div class="submit-grid">
+                    <input class="field" type="text" id="siteUrl" placeholder="https://example.com" aria-label="Website URL">
+                    <select class="field" id="siteTag" aria-label="Link tag"></select>
+                    <input class="field" type="text" id="customTag" list="tagOptions" placeholder="Your tag" maxlength="24" aria-label="Custom tag" hidden>
+                    <datalist id="tagOptions"></datalist>
+                    <button type="button" class="primary-btn" id="postBtn">Submit link</button>
+                </div>
+                <div class="small-note" id="postStatus" aria-live="polite"></div>
+            </section>
+            <section class="panel" aria-labelledby="directoryHeading">
+                <h2 id="directoryHeading">Shared directory</h2>
+                <div class="sort-bar">
+                    <span class="sort-label">Sort by</span>
+                    <button type="button" class="mini-btn" id="sortNew">Newest</button>
+                    <button type="button" class="mini-btn" id="sortScore">Top score</button>
+                </div>
+                <div class="link-list" id="linksDisplay" aria-live="polite">Loading shared links...</div>
+            </section>
+            <footer class="directory-footer small-note">
+                Need to organize tags? <a href="tags-admin.html">Open tag management</a>
+            </footer>
+        </div>
+    </main>
+
+    <script>
+    /* Same database as tags-admin.html. */
+    const DB_CONFIG = {
+        url: "https://ksksuhhxdnhxjlhheyrb.supabase.co",
+        anonKey: "sb_publishable_8_2RUMyvkF6wGNg5eWQaOw_NjIPp5fz",
+        pollMs: 15000,
+        timeoutMs: 15000
+    };
+
+    const OTHER = "__other";
+    const FALLBACK_TAG = "general";
+    /* How many tags the dropdown shows before "Other...". */
+    const MENU_SIZE = 12;
+
+    const DB = {
+        async request(path, options = {}) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), DB_CONFIG.timeoutMs);
+            let response;
+            try {
+                response = await fetch(DB_CONFIG.url.replace(/\/+$/, "") + path, {
+                    method: options.method || "GET",
+                    headers: {
+                        apikey: DB_CONFIG.anonKey,
+                        Authorization: "Bearer " + DB_CONFIG.anonKey,
+                        ...(options.body ? { "Content-Type": "application/json" } : {}),
+                        ...(options.prefer ? { Prefer: options.prefer } : {})
+                    },
+                    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+                    signal: controller.signal
+                });
+            } catch (err) {
+                throw new Error(err.name === "AbortError" ? "Supabase timed out" : "could not reach Supabase");
+            } finally {
+                clearTimeout(timer);
+            }
+
+            const text = await response.text();
+            let data = null;
+            if (text) {
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    throw new Error("Supabase returned HTTP " + response.status);
+                }
+            }
+            if (!response.ok) {
+                throw new Error(data && (data.message || data.error_description || data.error) ||
+                    "Supabase returned HTTP " + response.status);
+            }
+            return data;
+        },
+
+        async addLink(url, tag) {
+            return this.request("/rest/v1/links", {
+                method: "POST",
+                body: { url: url, tag: tag },
+                prefer: "return=minimal"
+            });
+        },
+
+        async getLinks() {
+            const rows = [];
+            let lastId = null;
+            let page;
+            do {
+                const after = lastId === null ? "" : "&id=gt." + lastId;
+                page = await this.request(
+                    "/rest/v1/links?select=id,url,tag,likes,reports&order=id.asc&limit=1000" + after
+                );
+                rows.push(...page);
+                if (page.length) lastId = page[page.length - 1].id;
+            } while (page.length === 1000);
+
+            return {
+                raw: rows.map((row) => JSON.stringify(row)),
+                parsed: rows.map(parseEntry).filter(Boolean)
+            };
+        },
+
+        async updateMetric(id, metric, delta) {
+            return this.request("/rest/v1/rpc/update_link_metric", {
+                method: "POST",
+                body: {
+                    p_id: id,
+                    p_metric: metric === "report" ? "reports" : "likes",
+                    p_delta: delta
+                }
+            });
+        }
+    };
+
+    function parseEntry(row) {
+        if (!row || typeof row.url !== "string") return null;
+        const url = normalizeUrl(row.url);
+        if (!url) return null;
+
+        return {
+            id: Number(row.id),
+            url: url,
+            label: row.url.trim(),
+            tag: normalizeTag(row.tag) || FALLBACK_TAG,
+            likes: Number(row.likes) || 0,
+            reports: Number(row.reports) || 0
+        };
+    }
+
+    function normalizeUrl(value) {
+        const trimmed = String(value || "").trim();
+        if (!trimmed) return null;
+
+        const candidate = /^[a-z][a-z0-9+.-]*:/i.test(trimmed) ? trimmed : "https://" + trimmed;
+
+        let parsed;
+        try {
+            parsed = new URL(candidate);
+        } catch (err) {
+            return null;
+        }
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+        if (!parsed.hostname.includes(".") && parsed.hostname !== "localhost") return null;
+
+        return parsed.href;
+    }
+
+    /* Lowercase and strip anything that would break the ||| separator. */
+    function normalizeTag(value) {
+        return String(value || "")
+            .toLowerCase()
+            .replace(/\|+/g, "")
+            .replace(/[^a-z0-9 _+-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 24);
+    }
+
+    /* True when the two words differ by at most one insert/delete/replace. */
+    function withinOneEdit(a, b) {
+        if (a === b) return true;
+        if (Math.abs(a.length - b.length) > 1) return false;
+
+        let i = 0;
+        let j = 0;
+        let edited = false;
+
+        while (i < a.length && j < b.length) {
+            if (a[i] === b[j]) {
+                i++;
+                j++;
+                continue;
+            }
+            if (edited) return false;
+            edited = true;
+
+            if (a.length > b.length) {
+                i++;
+            } else if (a.length < b.length) {
+                j++;
+            } else {
+                i++;
+                j++;
+            }
+        }
+
+        return true;
+    }
+
+    /* Fold a typed tag onto an existing one instead of creating a near-duplicate:
+       "Games" and "game" become "games", "gamin" becomes "games" again. */
+    function foldTag(candidate) {
+        if (!candidate) return FALLBACK_TAG;
+        if (tagCounts.has(candidate)) return candidate;
+
+        const singular = candidate.replace(/s$/, "");
+        if (singular !== candidate && tagCounts.has(singular)) return singular;
+
+        const plural = candidate + "s";
+        if (tagCounts.has(plural)) return plural;
+
+        if (candidate.length >= 4) {
+            let best = null;
+            for (const tag of tagCounts.keys()) {
+                if (Math.abs(tag.length - candidate.length) > 1) continue;
+                if (!withinOneEdit(tag, candidate)) continue;
+                if (!best || tag.length < best.length) best = tag;
+            }
+            if (best) return best;
+        }
+
+        return candidate;
+    }
+
+    /* Compare links without the trivia that makes duplicates look unique. */
+    function dedupeKey(url) {
+        try {
+            const parsed = new URL(url);
+            const host = parsed.hostname.replace(/^www\./i, "").toLowerCase();
+            const path = parsed.pathname.replace(/\/+$/, "");
+            return (host + path + parsed.search).toLowerCase();
+        } catch (err) {
+            return url.toLowerCase();
+        }
+    }
+
+    /* Dropdown = the most used tags. Every tag in use is still reachable through
+       the datalist on the custom field, so nothing is hidden. */
+    function syncTagSelect() {
+        const wanted = els.tag.value;
+        const ranked = [...tagCounts.entries()]
+            .sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0]))
+            .map(([tag]) => tag);
+
+        const menu = ranked.slice(0, MENU_SIZE);
+
+        const fragment = document.createDocumentFragment();
+        for (const tag of menu) {
+            const option = document.createElement("option");
+            option.value = tag;
+            option.textContent = tag;
+            fragment.append(option);
+        }
+
+        const other = document.createElement("option");
+        other.value = OTHER;
+        other.textContent = "Other...";
+        fragment.append(other);
+
+        els.tag.replaceChildren(fragment);
+
+        const options = [...els.tag.options].map((option) => option.value);
+        els.tag.value = options.includes(wanted) ? wanted : menu[0] || OTHER;
+        toggleCustomTag();
+
+        const all = [...ranked].sort((a, b) => a.localeCompare(b));
+        const dataOptions = document.createDocumentFragment();
+        for (const tag of all) {
+            const option = document.createElement("option");
+            option.value = tag;
+            dataOptions.append(option);
+        }
+        els.tagOptions.replaceChildren(dataOptions);
+    }
+
+    function toggleCustomTag() {
+        const isOther = els.tag.value === OTHER;
+        els.custom.hidden = !isOther;
+        if (!isOther) els.custom.value = "";
+    }
+
+    const VoteTracker = {
+        get(url) {
+            try {
+                const record = JSON.parse(localStorage.getItem("v_" + url));
+                if (record && typeof record === "object") {
+                    return { rating: record.rating || null, reported: Boolean(record.reported) };
+                }
+            } catch (err) {
+                /* storage blocked or full — votes still work server-side */
+            }
+            return { rating: null, reported: false };
+        },
+
+        set(url, record) {
+            try {
+                localStorage.setItem("v_" + url, JSON.stringify(record));
+            } catch (err) {
+                /* ignore */
+            }
+        }
+    };
+
+    const els = {
+        display: document.getElementById("linksDisplay"),
+        url: document.getElementById("siteUrl"),
+        tag: document.getElementById("siteTag"),
+        custom: document.getElementById("customTag"),
+        tagOptions: document.getElementById("tagOptions"),
+        postBtn: document.getElementById("postBtn"),
+        status: document.getElementById("postStatus"),
+        sortNew: document.getElementById("sortNew"),
+        sortScore: document.getElementById("sortScore")
+    };
+
+    let latestSignature = "";
+    let renderToken = 0;
+    let pollTimer = null;
+    let pendingIds = new Set();
+    let sortMode = "new";
+    let currentLinks = [];
+    let tagCounts = new Map();
+
+    function setStatus(text) {
+        els.status.textContent = text || "";
+    }
+
+    function buildRow(item) {
+        const record = VoteTracker.get(item.url);
+        const row = document.createElement("div");
+        row.className = "link-row";
+        row.dataset.id = String(item.id);
+
+        const anchor = document.createElement("a");
+        anchor.href = item.url;
+        anchor.textContent = item.label || item.url;
+        anchor.title = item.url;
+        anchor.target = "_blank";
+        anchor.rel = "noopener noreferrer";
+
+        const tagLabel = document.createElement("span");
+        tagLabel.className = "tag-label";
+        tagLabel.textContent = `[${item.tag}]`;
+
+        const score = document.createElement("span");
+        score.className = "link-score";
+        const scoreNumber = document.createElement("span");
+        scoreNumber.className = "score-number" + (item.likes < 0 ? " negative" : "");
+        scoreNumber.textContent = item.likes;
+        score.append("Score: ", scoreNumber);
+
+        const likeBtn = document.createElement("button");
+        likeBtn.type = "button";
+        likeBtn.className = "mini-btn" + (record.rating === "like" ? " active-like" : "");
+        likeBtn.textContent = "👍";
+        likeBtn.title = record.rating === "like" ? "Remove your upvote" : "Upvote";
+        likeBtn.setAttribute("aria-pressed", String(record.rating === "like"));
+        likeBtn.setAttribute("aria-label", "Upvote " + item.url);
+
+        const dislikeBtn = document.createElement("button");
+        dislikeBtn.type = "button";
+        dislikeBtn.className = "mini-btn" + (record.rating === "dislike" ? " active-dislike" : "");
+        dislikeBtn.textContent = "👎";
+        dislikeBtn.title = record.rating === "dislike" ? "Remove your downvote" : "Downvote";
+        dislikeBtn.setAttribute("aria-pressed", String(record.rating === "dislike"));
+        dislikeBtn.setAttribute("aria-label", "Downvote " + item.url);
+
+        const reportBtn = document.createElement("button");
+        reportBtn.type = "button";
+        reportBtn.className = "mini-btn mini-btn-report" + (record.reported ? " active-report" : "");
+        reportBtn.textContent = `⚠️ Reports: ${item.reports}`;
+        reportBtn.title = record.reported ? "Remove your report" : "Report this link as broken";
+        reportBtn.setAttribute("aria-pressed", String(record.reported));
+        reportBtn.setAttribute("aria-label", "Report " + item.url + " as broken");
+
+        if (pendingIds.has(item.id)) {
+            likeBtn.disabled = dislikeBtn.disabled = reportBtn.disabled = true;
+        }
+
+        likeBtn.addEventListener("click", () => handleAction(item, "like"));
+        dislikeBtn.addEventListener("click", () => handleAction(item, "dislike"));
+        reportBtn.addEventListener("click", () => handleAction(item, "report"));
+
+        row.append(anchor, tagLabel, score, likeBtn, dislikeBtn, reportBtn);
+        return row;
+    }
+
+    function sortLinks(list) {
+        // The list arrives oldest-first; "top score" only reorders.
+        if (sortMode !== "score") return list;
+        return [...list].sort((a, b) => (b.likes - a.likes) || (b.id - a.id));
+    }
+
+    function syncSortButtons() {
+        els.sortNew.classList.toggle("active-sort", sortMode === "new");
+        els.sortScore.classList.toggle("active-sort", sortMode === "score");
+        els.sortNew.setAttribute("aria-pressed", String(sortMode === "new"));
+        els.sortScore.setAttribute("aria-pressed", String(sortMode === "score"));
+    }
+
+    function paint(links) {
+        currentLinks = links;
+        syncSortButtons();
+
+        if (links.length === 0) {
+            els.display.textContent = "No links yet.";
+            return;
+        }
+
+        const newestFirst = [];
+        // Newest rows have the largest IDs, so walk them backwards.
+        for (let i = links.length - 1; i >= 0; i--) newestFirst.push(links[i]);
+
+        const fragment = document.createDocumentFragment();
+        for (const item of sortLinks(newestFirst)) fragment.append(buildRow(item));
+
+        els.display.replaceChildren(fragment);
+    }
+
+    function recountTags(links) {
+        tagCounts = new Map();
+        for (const item of links) {
+            tagCounts.set(item.tag, (tagCounts.get(item.tag) || 0) + 1);
+        }
+        if (!tagCounts.has(FALLBACK_TAG)) tagCounts.set(FALLBACK_TAG, 0);
+    }
+
+    function signatureOf(raw) {
+        return raw.map(String).join("\n");
+    }
+
+    async function renderLinks(force) {
+        const token = ++renderToken;
+        try {
+            const { raw, parsed } = await DB.getLinks();
+            if (token !== renderToken) return; // a newer render already started
+
+            recountTags(parsed);
+            syncTagSelect();
+
+            const signature = signatureOf(raw);
+            if (!force && signature === latestSignature && pendingIds.size === 0) return;
+            latestSignature = signature;
+
+            paint(parsed);
+        } catch (err) {
+            if (token !== renderToken) return;
+
+            latestSignature = "";
+            els.display.textContent = "Data connection offline.";
+            console.error("Link sync error:", err);
+        }
+    }
+
+    async function handleAction(item, type) {
+        if (pendingIds.has(item.id)) return;
+
+        const record = VoteTracker.get(item.url);
+        let delta = 0;
+
+        if (type === "like") {
+            if (record.rating === "like") {
+                delta = -1;
+                record.rating = null;
+            } else {
+                // Switching sides has to undo the old vote too.
+                delta = record.rating === "dislike" ? 2 : 1;
+                record.rating = "like";
+            }
+        } else if (type === "dislike") {
+            if (record.rating === "dislike") {
+                delta = 1;
+                record.rating = null;
+            } else {
+                delta = record.rating === "like" ? -2 : -1;
+                record.rating = "dislike";
+            }
+        } else {
+            delta = record.reported ? -1 : 1;
+            record.reported = !record.reported;
+        }
+
+        const row = els.display.querySelector(`[data-id="${item.id}"]`);
+        pendingIds.add(item.id);
+        toggleRow(row, true);
+
+        try {
+            await DB.updateMetric(item.id, type === "report" ? "report" : "like", delta);
+            VoteTracker.set(item.url, record);
+            pendingIds.delete(item.id);
+            await renderLinks(true);
+        } catch (err) {
+            pendingIds.delete(item.id);
+            toggleRow(row, false);
+            alert("Sync error: " + err.message);
+        }
+    }
+
+    function toggleRow(row, disabled) {
+        if (!row) return;
+        row.querySelectorAll("button").forEach((btn) => { btn.disabled = disabled; });
+    }
+
+    async function submitLink() {
+        const rawUrl = els.url.value.trim();
+        const usingOther = els.tag.value === OTHER;
+        const typed = normalizeTag(usingOther ? els.custom.value : els.tag.value);
+
+        if (!rawUrl) {
+            alert("Enter a URL!");
+            return;
+        }
+        if (usingOther && !typed) {
+            alert("Type a tag name, or pick one from the list.");
+            els.custom.focus();
+            return;
+        }
+
+        const checked = normalizeUrl(rawUrl);
+        if (!checked) {
+            alert("Enter a valid URL!");
+            return;
+        }
+
+        const tag = foldTag(typed);
+        const folded = Boolean(typed) && tag !== typed;
+
+        els.postBtn.disabled = true;
+        els.postBtn.textContent = "Posting...";
+        setStatus("");
+
+        try {
+            const existing = await DB.getLinks();
+            if (existing.parsed.some((entry) => dedupeKey(entry.url) === dedupeKey(checked))) {
+                setStatus("That link is already in the list.");
+                return;
+            }
+
+            await DB.addLink(checked, tag);
+
+            els.url.value = "";
+            els.custom.value = "";
+            toggleCustomTag();
+
+            setStatus(folded ? "Added under the existing tag [" + tag + "]." : "Added.");
+
+            await renderLinks(true);
+        } catch (err) {
+            alert("Server error: " + err.message);
+        } finally {
+            els.postBtn.textContent = "Submit Link";
+            els.postBtn.disabled = false;
+        }
+    }
+
+    function startPolling() {
+        stopPolling();
+        pollTimer = setInterval(() => {
+            if (document.hidden) return;
+            renderLinks(false);
+        }, DB_CONFIG.pollMs);
+    }
+
+    function stopPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = null;
+    }
+
+    els.postBtn.addEventListener("click", submitLink);
+    els.tag.addEventListener("change", toggleCustomTag);
+
+    els.sortNew.addEventListener("click", () => {
+        sortMode = "new";
+        paint(currentLinks);
+    });
+    els.sortScore.addEventListener("click", () => {
+        sortMode = "score";
+        paint(currentLinks);
+    });
+
+    for (const input of [els.url, els.custom]) {
+        input.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") submitLink();
+        });
+    }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            stopPolling();
+        } else {
+            renderLinks(false);
+            startPolling();
+        }
+    });
+
+    renderLinks(true);
+    startPolling();
+    </script>
+</body>
+</html>

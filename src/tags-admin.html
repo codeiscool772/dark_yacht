@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Tags - caek</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h3 { margin-bottom: 5px; }
+        hr { margin: 10px 0; border: 0; border-top: 1px solid #ccc; }
+        .row {
+            margin: 10px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #ddd;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .small-note { color: #777777; font-size: 12px; }
+        .mini-btn {
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        .mini-btn:hover { background-color: #e8e8e8; border-color: #999; }
+        .mini-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .ok-btn { border-color: #28a745; color: #155724; }
+        .ok-btn:hover { background-color: #d4edda; border-color: #28a745; }
+        .bad-btn { border-color: #dc3545; color: #721c24; }
+        .bad-btn:hover { background-color: #f8d7da; border-color: #dc3545; }
+        [hidden] { display: none !important; }
+    </style>
+</head>
+<body>
+    <h1>Tags &amp; Links</h1>
+    <hr>
+
+    <div id="gate">
+        <p>Sign in with your Supabase admin account.</p>
+        <input type="email" id="gateEmail" placeholder="email" autocomplete="username">
+        <input type="password" id="gatePassword" placeholder="password" autocomplete="current-password">
+        <button type="button" id="gateBtn">Sign in</button>
+        <div class="small-note" id="gateStatus"></div>
+    </div>
+
+    <div id="app" hidden>
+        <p class="small-note">Tags come from whatever people post. Nothing needs approving — rename, merge or kill to tidy up.</p>
+
+        <h3>Tags in use</h3>
+        <div id="tagList"></div>
+        <div class="small-note" id="status"></div>
+        <hr>
+
+        <h3>Links</h3>
+        <div id="linkList"></div>
+        <hr>
+
+        <p class="small-note">
+            <a href="link-dump.html">back to link dump</a> ·
+            <a href="#" id="reloadBtn">refresh</a> ·
+            <a href="#" id="lockBtn">sign out</a>
+        </p>
+    </div>
+
+    <script>
+    /* Use the Supabase project URL and public anon key (never a service-role key). */
+    const DB_CONFIG = {
+        url: "https://ksksuhhxdnhxjlhheyrb.supabase.co",
+        anonKey: "sb_publishable_8_2RUMyvkF6wGNg5eWQaOw_NjIPp5fz",
+        timeoutMs: 15000
+    };
+
+    const SESSION_KEY = "y_cht_supabase_admin_session";
+    const FALLBACK_TAG = "general";
+
+    function normalizeTag(value) {
+        return String(value || "")
+            .toLowerCase()
+            .replace(/\|+/g, "")
+            .replace(/[^a-z0-9 _+-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 24);
+    }
+
+    const DB = {
+        async send(path, options = {}, accessToken = null) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), DB_CONFIG.timeoutMs);
+            let response;
+            try {
+                response = await fetch(DB_CONFIG.url.replace(/\/+$/, "") + path, {
+                    method: options.method || "GET",
+                    headers: {
+                        apikey: DB_CONFIG.anonKey,
+                        Authorization: "Bearer " + (accessToken || DB_CONFIG.anonKey),
+                        ...(options.body ? { "Content-Type": "application/json" } : {}),
+                        ...(options.prefer ? { Prefer: options.prefer } : {})
+                    },
+                    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+                    signal: controller.signal
+                });
+            } catch (err) {
+                throw new Error(err.name === "AbortError" ? "Supabase timed out" : "could not reach Supabase");
+            } finally {
+                clearTimeout(timer);
+            }
+
+            const text = await response.text();
+            let data = null;
+            if (text) {
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    throw new Error("Supabase returned HTTP " + response.status);
+                }
+            }
+            if (!response.ok) {
+                throw new Error(data && (data.message || data.error_description || data.error) ||
+                    "Supabase returned HTTP " + response.status);
+            }
+            return data;
+        },
+
+        saveSession(session) {
+            session.expires_at = Date.now() + session.expires_in * 1000;
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        },
+
+        getSession() {
+            const stored = sessionStorage.getItem(SESSION_KEY);
+            return stored ? JSON.parse(stored) : null;
+        },
+
+        async accessToken() {
+            const session = this.getSession();
+            if (!session) return null;
+            if (session.expires_at > Date.now() + 60000) return session.access_token;
+
+            const refreshed = await this.send("/auth/v1/token?grant_type=refresh_token", {
+                method: "POST",
+                body: { refresh_token: session.refresh_token }
+            });
+            this.saveSession(refreshed);
+            return refreshed.access_token;
+        },
+
+        async request(path, options = {}) {
+            return this.send(path, options, await this.accessToken());
+        },
+
+        async login(email, password) {
+            const session = await this.send("/auth/v1/token?grant_type=password", {
+                method: "POST",
+                body: { email: email, password: password }
+            });
+            this.saveSession(session);
+        },
+
+        async logout() {
+            const session = this.getSession();
+            try {
+                if (session) {
+                    await this.send("/auth/v1/logout", { method: "POST" }, session.access_token);
+                }
+            } finally {
+                sessionStorage.removeItem(SESSION_KEY);
+            }
+        },
+
+        async isAdmin() {
+            return this.request("/rest/v1/rpc/is_link_admin", { method: "POST", body: {} });
+        },
+
+        async getLinks() {
+            const rows = [];
+            let lastId = null;
+            let page;
+            do {
+                const after = lastId === null ? "" : "&id=gt." + lastId;
+                page = await this.request(
+                    "/rest/v1/links?select=id,url,tag,likes,reports&order=id.asc&limit=1000" + after
+                );
+                rows.push(...page);
+                if (page.length) lastId = page[page.length - 1].id;
+            } while (page.length === 1000);
+            return rows;
+        },
+
+        async retag(from, to) {
+            return this.request("/rest/v1/rpc/retag_links", {
+                method: "POST",
+                body: { p_from: from, p_to: to }
+            });
+        }
+    };
+
+    const els = {
+        gate: document.getElementById("gate"),
+        gateEmail: document.getElementById("gateEmail"),
+        gatePassword: document.getElementById("gatePassword"),
+        gateBtn: document.getElementById("gateBtn"),
+        gateStatus: document.getElementById("gateStatus"),
+        app: document.getElementById("app"),
+        tagList: document.getElementById("tagList"),
+        linkList: document.getElementById("linkList"),
+        status: document.getElementById("status"),
+        reloadBtn: document.getElementById("reloadBtn"),
+        lockBtn: document.getElementById("lockBtn")
+    };
+
+    let state = { tags: [], links: [] };
+    let busy = false;
+
+    function setStatus(text) {
+        els.status.textContent = text || "";
+    }
+
+    function tagOf(link) {
+        return normalizeTag(link.tag) || FALLBACK_TAG;
+    }
+
+    async function load(keepStatus) {
+        if (!keepStatus) setStatus("Loading...");
+
+        try {
+            state.links = await DB.getLinks();
+
+            const counts = new Map();
+            for (const link of state.links) {
+                const tag = tagOf(link);
+                if (!tag) continue;
+                counts.set(tag, (counts.get(tag) || 0) + 1);
+            }
+            state.tags = [...counts.entries()]
+                .map(([tag, count]) => ({ tag, count }))
+                .sort((a, b) => (b.count - a.count) || a.tag.localeCompare(b.tag));
+
+            render();
+            if (!keepStatus) setStatus("");
+        } catch (err) {
+            setStatus("Could not load: " + err.message);
+        }
+    }
+
+    function render() {
+        els.tagList.replaceChildren();
+        if (state.tags.length === 0) {
+            els.tagList.textContent = "No tags yet.";
+        } else {
+            for (const entry of state.tags) {
+                els.tagList.append(buildTagRow(entry));
+            }
+        }
+
+        els.linkList.replaceChildren();
+        if (state.links.length === 0) {
+            els.linkList.textContent = "No links.";
+        } else {
+            for (let i = state.links.length - 1; i >= 0; i--) {
+                els.linkList.append(buildLinkRow(state.links[i]));
+            }
+        }
+    }
+
+    function buildTagRow(entry) {
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const name = document.createElement("b");
+        name.textContent = entry.tag;
+
+        const count = document.createElement("span");
+        count.className = "small-note";
+        count.textContent = entry.count + (entry.count === 1 ? " link" : " links");
+
+        const rename = document.createElement("button");
+        rename.type = "button";
+        rename.className = "mini-btn";
+        rename.textContent = "rename";
+        rename.addEventListener("click", () => renameTag(entry.tag, rename));
+
+        const merge = document.createElement("button");
+        merge.type = "button";
+        merge.className = "mini-btn ok-btn";
+        merge.textContent = "merge";
+        merge.addEventListener("click", () => mergeTag(entry.tag, merge));
+
+        const kill = document.createElement("button");
+        kill.type = "button";
+        kill.className = "mini-btn bad-btn";
+        kill.textContent = "kill";
+        kill.addEventListener("click", () => killTag(entry.tag, kill));
+
+        row.append(name, count, rename, merge, kill);
+        return row;
+    }
+
+    function buildLinkRow(link) {
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const tag = document.createElement("b");
+        tag.textContent = "[" + (link.tag || "none") + "]";
+
+        const rawUrl = (link.url || "").trim();
+        const url = document.createElement("a");
+        if (rawUrl) {
+            url.href = /^[a-z][a-z0-9+.-]*:\/\//i.test(rawUrl) ? rawUrl : "https://" + rawUrl;
+        }
+        url.textContent = rawUrl || "(bad entry)";
+        url.target = "_blank";
+        url.rel = "noopener noreferrer";
+        url.className = "small-note";
+
+        const counts = document.createElement("span");
+        counts.className = "small-note";
+        counts.textContent = "score " + (Number(link.likes) || 0) +
+            " · reports " + (Number(link.reports) || 0);
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "mini-btn bad-btn";
+        remove.textContent = "take down";
+        remove.addEventListener("click", () => removeLink(link.id, remove));
+
+        row.append(tag, url, counts, remove);
+        return row;
+    }
+
+    async function applyRetag(from, to, button, message) {
+        if (busy) return;
+        busy = true;
+        if (button) button.disabled = true;
+        setStatus("Updating [" + from + "]...");
+
+        try {
+            const changed = await DB.retag(from, to);
+            await load(true);
+            setStatus(message.replace("{n}", changed));
+        } catch (err) {
+            setStatus("Could not update: " + err.message);
+            if (button) button.disabled = false;
+        } finally {
+            busy = false;
+        }
+    }
+
+    function renameTag(tag, button) {
+        const typed = prompt("New name for [" + tag + "]", tag);
+        if (typed === null) return;
+
+        const next = normalizeTag(typed);
+        if (!next || next === tag) return;
+
+        applyRetag(tag, next, button, "Renamed [" + tag + "] to [" + next + "] on {n} link(s).");
+    }
+
+    function mergeTag(tag, button) {
+        const typed = prompt("Merge [" + tag + "] into which tag?", "");
+        if (typed === null) return;
+
+        const target = normalizeTag(typed);
+        if (!target || target === tag) return;
+
+        applyRetag(tag, target, button, "Moved {n} link(s) from [" + tag + "] to [" + target + "].");
+    }
+
+    function killTag(tag, button) {
+        if (!confirm("Kill [" + tag + "]? Its links move to [" + FALLBACK_TAG + "].")) return;
+        applyRetag(tag, FALLBACK_TAG, button, "Killed [" + tag + "], {n} link(s) moved to [" + FALLBACK_TAG + "].");
+    }
+
+    async function removeLink(id, button) {
+        if (busy) return;
+        if (!confirm("Take this link down?")) return;
+
+        busy = true;
+        if (button) button.disabled = true;
+        setStatus("Removing...");
+
+        try {
+            await DB.request(
+                "/rest/v1/links?id=eq." + encodeURIComponent(id),
+                { method: "DELETE", prefer: "return=minimal" }
+            );
+            await load(true);
+            setStatus("Link removed.");
+        } catch (err) {
+            setStatus("Could not remove: " + err.message);
+            if (button) button.disabled = false;
+        } finally {
+            busy = false;
+        }
+    }
+
+    async function unlock(signIn) {
+        els.gateBtn.disabled = true;
+        els.gateStatus.textContent = "Signing in...";
+        try {
+            if (signIn) {
+                await DB.login(els.gateEmail.value.trim(), els.gatePassword.value);
+            }
+            if (!(await DB.isAdmin())) {
+                await DB.logout();
+                throw new Error("This account is not authorized to manage links.");
+            }
+        } catch (err) {
+            els.gateStatus.textContent = "Sign-in failed: " + err.message;
+            els.gateBtn.disabled = false;
+            return;
+        }
+
+        els.gate.hidden = true;
+        els.app.hidden = false;
+        els.gatePassword.value = "";
+        load();
+    }
+
+    els.gateBtn.addEventListener("click", () => {
+        unlock(true);
+    });
+
+    els.gatePassword.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") els.gateBtn.click();
+    });
+
+    els.reloadBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        load();
+    });
+
+    els.lockBtn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        try {
+            await DB.logout();
+        } catch (err) {
+            els.gateStatus.textContent = "Signed out locally; Supabase logout failed: " + err.message;
+        }
+        els.app.hidden = true;
+        els.gate.hidden = false;
+        els.gateEmail.focus();
+        els.gateBtn.disabled = false;
+    });
+
+    if (DB.getSession()) {
+        unlock(false);
+    } else {
+        els.gateEmail.focus();
+    }
+    </script>
+</body>
+</html>

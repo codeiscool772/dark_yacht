@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML IDE - caek</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0 20px 20px; }
+        h1 { margin-bottom: 5px; padding-top: 20px; }
+        hr { margin: 10px 0; border: 0; border-top: 1px solid #ccc; }
+        .mini-btn {
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            padding: 4px 10px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .mini-btn:hover { background-color: #e8e8e8; border-color: #999; }
+        .mini-btn.active { background-color: #e8e8e8; border-color: #999; font-weight: bold; }
+        .small-note { color: #777777; font-size: 12px; }
+        .toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            background: #ffffff;
+            border-bottom: 1px solid #eeeeee;
+        }
+        .toolbar .spacer { flex: 1 1 auto; }
+        .toolbar .divider { width: 1px; height: 22px; background: #eeeeee; }
+        .panes {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+            height: calc(100vh - 250px);
+            min-height: 320px;
+        }
+        .panes.hide-code .pane-code { display: none; }
+        .panes.hide-preview .pane-preview { display: none; }
+        .pane { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+        .pane-head {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            font-size: 12px;
+            color: #777777;
+            margin-bottom: 4px;
+        }
+        .pane-head a { color: #777777; }
+        .pane-head a:hover { color: #000000; }
+        #editor {
+            flex: 1 1 0;
+            min-height: 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        iframe {
+            flex: 1 1 0;
+            min-height: 0;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #ffffff;
+        }
+        #problems { margin-top: 10px; }
+        #problems .head { color: #b30000; font-size: 12px; }
+        #problems ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; }
+        #problems li { cursor: pointer; }
+        #problems li:hover { text-decoration: underline; }
+        .saved { color: #2f7d32; }
+        .dirty { color: #a06000; }
+        @media (max-width: 760px) {
+            body { padding: 0 12px 16px; }
+            .panes { flex-direction: column; height: auto; }
+            .panes.hide-code .pane-preview, .panes.hide-preview .pane-code { display: flex; }
+            #editor, iframe { height: 45vh; flex: none; }
+            .toolbar { position: static; }
+        }
+    </style>
+</head>
+<body>
+    <h1>HTML IDE</h1>
+    <div class="small-note"><a href="index.html">back to hub</a></div>
+    <hr>
+
+    <div class="toolbar">
+        <button type="button" class="mini-btn" id="runBtn">Run</button>
+        <button type="button" class="mini-btn" id="resetBtn">Load example</button>
+        <button type="button" class="mini-btn" id="downloadBtn">Download .html</button>
+        <span class="divider"></span>
+        <button type="button" class="mini-btn" id="layoutCode">code</button>
+        <button type="button" class="mini-btn" id="layoutSplit">split</button>
+        <button type="button" class="mini-btn" id="layoutPreview">preview</button>
+        <span class="spacer"></span>
+        <span class="small-note" id="cursor">Ln 1, Col 1</span>
+        <span class="small-note" id="status"></span>
+    </div>
+    <hr>
+
+    <div class="panes" id="panes">
+        <div class="pane pane-code">
+            <div class="pane-head">
+                <span>code (saves in this browser)</span>
+                <span>Ctrl+Enter runs · Ctrl+S saves · Ctrl+F finds</span>
+            </div>
+            <div id="editor"></div>
+        </div>
+        <div class="pane pane-preview">
+            <div class="pane-head">
+                <span>preview</span>
+                <a href="#" id="openTab">open in a new tab</a>
+            </div>
+            <iframe id="preview" title="Preview" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe>
+        </div>
+    </div>
+
+    <div id="problems" hidden></div>
+
+    <script src="vendor/ace/ace.js"></script>
+    <script src="vendor/ace/mode-html.js"></script>
+    <script src="vendor/ace/mode-css.js"></script>
+    <script src="vendor/ace/mode-javascript.js"></script>
+    <script src="vendor/ace/theme-github.js"></script>
+    <script src="vendor/ace/ext-language_tools.js"></script>
+    <script src="vendor/ace/ext-searchbox.js"></script>
+    <script src="ide.js"></script>
+</body>
+</html>

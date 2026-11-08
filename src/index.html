@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untitled document - Google Docs</title>
+<link rel="icon" type="image/png" sizes="any"     href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEABAMAAACuXLVVAAAAGFBMVEUAAABYoP/7/f92u/+ZpP+Cnf9glP83iP8L9dpeAAAAB3RSTlMAdP/////+pg9ydgAABEtJREFUeNrt1rFy4zYUhWGqkVu4kXuNndQYFNt7qKTfEeXWTqyLlh7PEK+fcTTxXW5WEnAPuKdY/C/ATwcgR92lVrci6XquW6hNyst3yxRTZsFxn5+C5z4/hSUmWKcSQP0JVqkIUH+Cu0KA5xyAAoLjDKAAT7gBCqg+wY0BUHWCZADUnGBtAnjCFVRA3QmiDeAJ74ACak6wtgI84SVUQMUJ7swAz7mDKVSeINkBngSoO8EKAXgOoO4Eawjg2YDg2AB8ghsMEBwb4NmA4NgAzwYExwZ4NiA4NsCzAcGxAZ4NCI4N8GxAcGyAZwOCYwM8GxAcG+DZgODYAM8GBMcGeDYgODbAswHBsQGeDQiODfBsQHBsgGcDgmMDPBsQHBvglwe8X5mADfBsQHBLA1LAJsABf2MT4IB3bAIckMKVnAFAmAAATOgEcwBrAgWwboEC6gs8CMAFDgPg3yMPAfB0AhIgvXsSQAWODEgjG5DogJENSHTAyAZMbEBybMDIBryxAYkOcGzA8y8PGBugARqgARqgARqgARqgARqgARqgARqgARqgARqgARqgARqgARrAAJA0MQHyEREgpyIbIJEEEI0OkEgATDKLDpCfDpDviyyA9lMBk/wgJuD4uM3q/ssygOM2u6c6AJm3LWgJwF8lgN/PAJ4BwGMJ4KEGYCo/Aa0+4FgG+FIBILNeywBPbMCfvzygyhGQL+Ek5NdwEvKHaBLmp1gBGngCOODV8A6gANuLcP+UagCktKRxAEIHSGQBNDpAIhsgkQXQKgEmMRfZAIksgEYHSGQBNDpA6ACJkQTQEIBoR/sGNQDDMBzsAhxwHD4SazhgOGUeAQUMn4mtiAJggR2gNwA6hmgDTApAR4AAw3eRAf32bPeHa2eAA/bbi/0h57ID5lfgcXu5w8KAr9srPciZoh2QM4B2WBaw1UpvQRXA/jrgNzbgYVHAVwAQrYBjGeC+JkDfwv3QMxZQQL/r0UsoGKDvh48YgH+f/9EuC3BYCHAiZHwJ5WwRB/S7vfkEcMCpR9NLOAeMxYBdPxOU/SPRzIB9/2274Xwi9QHH/wDaBcFhSYC2MwhggP0YcECvQccQIQB4DDgAOwYcYD0GHDAowDACBpgUYBihHqDXwLuIAPBjUMCzBQAcAw4ABAcrYH0FYDgGCACNgANAwf8AriZAy5gg5gNWJ4B+iXGBArq6AG2HA7Q5ABxhDpiyAHEGAAUHA+DuE7DvNesxzABvWYCbGQAVzN7DMQuwLgVoF85A38LrzQDwCN8CuryiAsq7BHjLBNzMAOgIBwWMmYCVAlDBHOC6zKICTJ0BTF1uNzMAOsInYMwGrBSACxTQ5XenAGM/AIwFgNUJ0GPt5oCupI0uYG92C3WAvBQA/P6dAkS6stYKsBN6BYjrCtvo/wH7Bgp47orbwIBBF3jpDG2wI9BPoT6/WAAB9BK+dNZuN6/g79/Ly+3FR/wDMwoci2WPC8YAAAAASUVORK5CYII=">
+    <style>
+        body { background-color: #ffffff; color: #000000; }
+
+        #theme-toggle {
+            font: inherit;
+            line-height: 1;
+            padding: 0 6px;
+            border: 1px solid #bbbbbb;
+            border-radius: 3px;
+            background: #f5f5f5;
+            color: inherit;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+        #theme-toggle:hover { background: #eaeaea; }
+
+        .dark-mode { background-color: #111111 !important; color: #f0f0f0 !important; }
+        .dark-mode a { color: #8ab4ff; }
+        .dark-mode hr { border-color: #333333; }
+        .dark-mode .app-card { background: #1a1a1a; border-color: #333333; color: #f0f0f0; }
+        .dark-mode .app-card:hover { background: #232323; border-color: #555555; }
+        .dark-mode .app-card span { color: #a0a0a0; }
+        .dark-mode #theme-toggle { background: #1d1d1d; border-color: #3b3b3b; }
+    </style>
+    <style>
+        h1 {
+            margin-bottom: 5px; 
+        }
+        hr {
+            margin: 5px 0; 
+        }
+        p {
+            margin-top: 5px;
+        }
+       
+        h4 {
+            margin-top: 0;
+            margin-bottom: 2px; 
+        }
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin: 10px 0 0;
+        }
+        .app-card {
+            display: block;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #000000;
+            background: #fafafa;
+        }
+        .app-card:hover { border-color: #888888; background: #f0f0f0; }
+        .app-card b { display: block; font-size: 14px; }
+        .app-card span { font-size: 12px; color: #777777; }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap">
+    <style>
+        html, body { min-height: 100%; margin: 0; background: #CBD7F4; }
+        .hub, .hub * { box-sizing: border-box; }
+        .hub {
+            min-height: 100vh;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background: #CBD7F4;
+            color: #171B2E;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+        .hub .card {
+            width: 100%;
+            max-width: none;
+            min-width: 0;
+            min-height: 100vh;
+            padding-bottom: 0;
+            overflow: hidden;
+            border-radius: 0;
+            background: #fff;
+            box-shadow: 0 18px 40px -18px rgba(23, 27, 46, .4);
+        }
+        .hub .cover { height: 132px; background: #2B3FD6; }
+        .hub .cover svg { display: block; width: 100%; height: 100%; }
+        .hub .avatar {
+            position: relative;
+            display: grid;
+            place-items: center;
+            width: 84px;
+            height: 84px;
+            margin: -42px auto 0;
+            border: 5px solid #fff;
+            border-radius: 50%;
+            background: #FFD66B;
+            font-size: 26px;
+            font-weight: 800;
+        }
+        .hub .who { padding: 14px 24px 18px; text-align: center; }
+        .hub h1 { margin: 0; font-size: 26px; font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; }
+        .hub .who p { max-width: 50ch; margin: 10px auto 0; color: #4A5070; line-height: 1.5; }
+        .hub hr { height: 1px; margin: 0 16px; border: 0; background: #E5E8F2; }
+        .hub .site-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; }
+        .hub a { color: inherit; text-decoration: none; }
+        .hub a:focus-visible, .hub summary:focus-visible, .hub button:focus-visible { outline: 2px solid #2B3FD6; outline-offset: 2px; }
+        .hub .site-nav a { padding: 8px 12px; border-radius: 5px; background: #F3F5FC; color: #2B3FD6; font-weight: 700; }
+        .hub .site-nav .directory-nav-link { background: #2B3FD6; color: #fff; }
+        .hub .site-nav .directory-nav-link:hover { background: #202FAE; }
+        .hub #theme-toggle { padding: 8px 12px; border: 0; border-radius: 5px; background: #171B2E; color: #fff; font-weight: 700; }
+        .hub details.distractions-feature { margin: 12px 16px; padding: 0; overflow: hidden; border: 1px solid #CBD3F1; border-radius: 12px; background: #fff; box-shadow: 0 8px 24px -20px rgba(23, 27, 46, .55); }
+        .hub summary { padding: 16px 18px; cursor: pointer; font-weight: 800; list-style-position: inside; }
+        .hub .distractions-feature summary { border-bottom: 1px solid #E5E8F2; background: linear-gradient(90deg, #F0F2FF, #fff 75%); color: #171B2E; }
+        .hub .distractions-feature summary:hover { background: #E7ECFB; }
+        .hub .distractions-feature-title { font-size: 18px; }
+        .hub .distractions-feature-note { display: block; margin: 4px 0 0 20px; color: #5A6080; font-size: 13px; font-weight: 500; }
+        .hub .distractions-feature-content { padding: 0 16px 16px; }
+        .hub .quick-link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 8px; margin-top: 12px; }
+        .hub .quick-link-grid a { display: block; min-width: 0; padding: 10px 12px; overflow: hidden; border-radius: 6px; background: #F3F5FC; color: #2B3FD6; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+        .hub .quick-link-grid a:hover { background: #E7ECFB; }
+        .hub details .more-links { display: inline-block; margin-top: 12px; }
+        .hub .more-links { padding: 8px 12px; border: 0; border-radius: 5px; background: #2B3FD6; color: #fff; font: inherit; cursor: pointer; }
+        .hub .feature-card { margin: 12px 16px; padding: 14px; border: 1px solid #E5E8F2; border-left: 4px solid #E35D6A; border-radius: 0; background: #fff; }
+        .hub h4 { margin: 0 0 4px; }
+        .hub .feature-card h4 a { display: inline; padding: 0; background: none; color: #2B3FD6; }
+        .hub .feature-card i { color: #5A6080; font-size: 13px; }
+        .hub .app-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 12px 16px; }
+        .hub .app-card { display: block; min-width: 0; padding: 14px; border: 1px solid #E5E8F2; border-radius: 0; background: #F3F5FC; color: #171B2E; }
+        .hub .app-card:hover { background: #E7ECFB; }
+        .hub .app-card b { margin-bottom: 3px; }
+        .hub .app-card span { color: #5A6080; }
+        .hub > .card > h4 { padding: 12px 16px 0; }
+        .dark-mode .hub { background: #171B2E; color: #F3F5FC; }
+        .dark-mode .hub .card { background: #20243A; }
+        .dark-mode .hub .who p, .dark-mode .hub .feature-card i, .dark-mode .hub .app-card span { color: #B9C0DA; }
+        .dark-mode .hub hr { background: #3A405B; }
+        .dark-mode .hub .site-nav a, .dark-mode .hub .quick-link-grid a { background: #2B304B; color: #C5D0FF; }
+        .dark-mode .hub .site-nav .directory-nav-link { background: #5265E8; color: #fff; }
+        .dark-mode .hub #theme-toggle { background: #F3F5FC; color: #171B2E; }
+        .dark-mode .hub .feature-card, .dark-mode .hub .app-card { border-color: #3A405B; background: #292E49; color: #F3F5FC; }
+        .dark-mode .hub .feature-card h4 a { color: #C5D0FF; }
+        .dark-mode .hub details.distractions-feature { border-color: #3A405B; background: #20243A; }
+        .dark-mode .hub .distractions-feature summary { border-color: #3A405B; background: linear-gradient(90deg, #292E49, #20243A 75%); color: #F3F5FC; }
+        .dark-mode .hub .distractions-feature summary:hover { background: #343A58; }
+        .dark-mode .hub .distractions-feature-note { color: #B9C0DA; }
+        .dark-mode .hub .app-card:hover, .dark-mode .hub .quick-link-grid a:hover { background: #343A58; }
+        @media (max-width: 480px) {
+            .hub { padding: 0; }
+            .hub .card { border-radius: 0; }
+            .hub .cover { height: 112px; }
+            .hub .who { padding-right: 16px; padding-left: 16px; }
+            .hub details.distractions-feature { margin-right: 12px; margin-left: 12px; }
+        }
+        @media (prefers-reduced-motion: reduce) { .hub * { scroll-behavior: auto !important; transition: none !important; } }
+    </style>
+</head>
+<body>
+<main class="hub"><article class="card">
+    <div class="cover"><svg viewBox="0 0 440 132" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path fill="#fff" fill-opacity=".2" d="M62 132C48 112 50 86 66 74V56h28v18c16 12 18 38 4 58z"/><path fill="#fff" fill-opacity=".3" d="M150 90h140c0 28-32 42-70 42s-70-14-70-42z"/><path fill="#fff" fill-opacity=".2" d="M326 132V82c0-6 4-10 10-10h6V62h16v10h6c6 0 10 4 10 10v50z"/></svg></div>
+    <div class="avatar" aria-hidden="true">DY</div>
+    <header class="who">
+    <h1>Welcome to caek</h1>
+    <p>The ultimate hub for all things educational</p>
+    </header>
+    <hr>
+    <nav class="site-nav" aria-label="Site navigation">
+    <a class="directory-nav-link" href="link-dump.html">Open Link Dump</a>
+    <a href="tags-admin.html">Tags</a>
+    <button type="button" id="theme-toggle" aria-pressed="false">Dark</button>
+    </nav>
+    <hr>
+
+<details class="distractions-feature" open>
+  <summary>
+    <span class="distractions-feature-title">Featured educational distractions</span>
+    <span class="distractions-feature-note">A quick-pick collection — open or collapse anytime</span>
+  </summary>
+  <div class="distractions-feature-content">
+  <div class="quick-link-grid">
+    <a href="https://aur.saintpauljinju.com">aur.saintpauljinju.com</a>
+    <a href="https://bullpxbklol.s3.amazonaws.com/index.svg">bullpxbklol.s3.amazonaws.com</a>
+    <a href="https://kite.openmouth.com.ar">kite.openmouth.com.ar</a>
+    <a href="https://storage.googleapis.com/math-homework/index.html">storage.googleapis.com</a>
+    <a href="https://chrisets.s3.us-east-1.amazonaws.com/index.svg">chrisets.s3.amazonaws.com</a>
+    <a href="https://cdn.jsdelivr.net/gh/drewalow860-ctrl/PeteZahStaticDone@959d81f/new.svg">cdn.jsdelivr.net · PeteZahStaticDone</a>
+    <a href="https://cdn.jsdelivr.net/gh/NightProxy/DD-Static/dist/index.svg">cdn.jsdelivr.net · DD-Static</a>
+    <a href="https://the-wagonization.github.io/The-Wagon-Site/Pages/Bypasser'sChromekit.html">the-wagonization.github.io · Chromekit</a>
+    <a href="https://f.freetls.fastly.net/">f.freetls.fastly.net</a>
+    <a href="https://extrememath.cyou/">extrememath.cyou</a>
+    <a href="https://luminal.cc/">luminal.cc</a>
+    <a href="https://oled-math.vercel.app">oled-math.vercel.app</a>
+  </div>
+  <a href="link-dump.html" class="more-links">See all links in the Link Dump</a>
+  </div>
+</details>
+<hr>
+
+<div class="feature-card">
+    <h4><a href="https://the-wagonization.github.io/The-Wagon-Site/Pages/Bypasser'sChromekit.html">XPLOITS</a></h4>
+    <i>permanent stuff (not all of it) dont mess with unless ur a nerd</i>
+    <br>
+</div>
+<hr>
+    <h4>Apps</h4>
+    <div class="app-grid">
+        <a class="app-card" href="ide.html"><b>HTML IDE</b><span>write html, see it live</span></a>
+        <a class="app-card" href="notes.html"><b>Notepad</b><span>saves in this browser</span></a>
+        <a class="app-card" href="stopwatch.html"><b>Stopwatch</b><span>start, lap, reset</span></a>
+        
+    </div>
+<hr>
+<script>
+const toggleBtn = document.getElementById("theme-toggle");
+// document.body is null inside an SVG document, so fall back to the root.
+const themeRoot = document.body || document.documentElement;
+
+toggleBtn.addEventListener("click", () => {
+    const dark = themeRoot.classList.toggle("dark-mode");
+    toggleBtn.textContent = dark ? "Light" : "Dark";
+    toggleBtn.setAttribute("aria-pressed", String(dark));
+});
+</script>
+</article></main>
+</body>
+</html>

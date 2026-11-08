@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch - caek</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { margin-bottom: 5px; }
+        hr { margin: 10px 0; border: 0; border-top: 1px solid #ccc; }
+        .mini-btn {
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .mini-btn:hover { background-color: #e8e8e8; border-color: #999; }
+        .small-note { color: #777777; font-size: 12px; }
+        .bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+        #display {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 48px;
+            letter-spacing: 1px;
+            font-variant-numeric: tabular-nums;
+        }
+        #laps { margin: 14px 0 0; padding-left: 20px; font-family: Consolas, "Courier New", monospace; font-size: 14px; }
+        #laps li { margin: 2px 0; }
+    </style>
+</head>
+<body>
+    <h1>Stopwatch</h1>
+    <div class="small-note"><a href="index.html">back to hub</a></div>
+    <hr>
+
+    <div id="display">00:00.0</div>
+
+    <div class="bar">
+        <button type="button" class="mini-btn" id="startBtn">Start</button>
+        <button type="button" class="mini-btn" id="lapBtn">Lap</button>
+        <button type="button" class="mini-btn" id="resetBtn">Reset</button>
+    </div>
+
+    <ol id="laps"></ol>
+
+    <script>
+    const display = document.getElementById("display");
+    const startBtn = document.getElementById("startBtn");
+    const lapBtn = document.getElementById("lapBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const laps = document.getElementById("laps");
+
+    let startAt = 0;
+    let elapsed = 0;
+    let running = false;
+    let ticker = null;
+
+    function current() {
+        return running ? elapsed + (performance.now() - startAt) : elapsed;
+    }
+
+    function format(ms) {
+        const minutes = Math.floor(ms / 60000);
+        const seconds = Math.floor((ms % 60000) / 1000);
+        const tenths = Math.floor((ms % 1000) / 100);
+        return String(minutes).padStart(2, "0") + ":" +
+            String(seconds).padStart(2, "0") + "." + tenths;
+    }
+
+    function paint() {
+        display.textContent = format(current());
+    }
+
+    function start() {
+        if (running) return;
+        running = true;
+        startAt = performance.now();
+        startBtn.textContent = "Pause";
+        ticker = setInterval(paint, 100);
+        paint();
+    }
+
+    function pause() {
+        if (!running) return;
+        elapsed = current();
+        running = false;
+        clearInterval(ticker);
+        ticker = null;
+        startBtn.textContent = "Start";
+        paint();
+    }
+
+    startBtn.addEventListener("click", () => {
+        if (running) pause(); else start();
+    });
+
+    lapBtn.addEventListener("click", () => {
+        if (!running && elapsed === 0) return;
+        const item = document.createElement("li");
+        item.textContent = format(current());
+        laps.append(item);
+    });
+
+    resetBtn.addEventListener("click", () => {
+        pause();
+        elapsed = 0;
+        laps.replaceChildren();
+        paint();
+    });
+
+    paint();
+    </script>
+</body>
+</html>
