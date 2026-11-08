@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mara Okafor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap">
+<style>
+html, body { margin: 0; height: 100%; background: #CBD7F4; }
+.hub, .hub * { box-sizing: border-box; }
+.hub a { color: inherit; text-decoration: none; }
+.hub ul { list-style: none; margin: 0; padding: 0; }
+.hub h1, .hub p { margin: 0; }
+.hub {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: #CBD7F4;
+  color: #171B2E;
+  min-height: 100%;
+  padding: 28px 16px 36px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.hub .card { width: 100%; max-width: 440px; min-width: 0; background: #fff; border-radius: 28px; overflow: hidden; box-shadow: 0 18px 40px -18px rgba(23, 27, 46, .4); padding-bottom: 20px; }
+.hub .cover { height: 132px; background: #2B3FD6; }
+.hub .cover svg { display: block; width: 100%; height: 100%; }
+.hub .avatar { position: relative; width: 84px; height: 84px; margin: -42px auto 0; border: 5px solid #fff; border-radius: 50%; background: #FFD66B; display: grid; place-items: center; font-weight: 800; font-size: 26px; }
+.hub .who { text-align: center; padding: 14px 24px 22px; }
+.hub h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; text-wrap: balance; overflow-wrap: anywhere; }
+.hub .handle { margin-top: 4px; font-weight: 700; font-size: 14px; color: #2B3FD6; overflow-wrap: anywhere; }
+.hub .bio { margin: 10px auto 0; font-size: 14.5px; line-height: 1.5; color: #4A5070; max-width: 34ch; }
+.hub ul { display: grid; gap: 10px; padding: 0 16px; }
+.hub a { display: flex; align-items: center; gap: 14px; padding: 10px 14px 10px 10px; border-radius: 18px; background: #F3F5FC; transition: background .15s, transform .15s; }
+.hub a:hover { background: #E7ECFB; transform: translateY(-1px); }
+.hub a:focus-visible { outline: 2px solid #2B3FD6; outline-offset: 2px; }
+.hub .ico { width: 46px; height: 46px; border-radius: 13px; background: var(--c); display: grid; place-items: center; flex: none; color: #171B2E; }
+.hub .txt { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.hub .t { font-weight: 700; font-size: 15px; line-height: 1.25; overflow-wrap: anywhere; }
+.hub .d { font-size: 13px; color: #5A6080; }
+.hub .d:empty { display: none; }
+.hub a > svg { flex: none; color: #5A6080; }
+@media (prefers-reduced-motion: reduce) { .hub a { transition: none; } }
+</style>
+</head>
+<body>
+<main class="hub"><article class="card"><div class="cover"><svg viewBox="0 0 440 132" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path fill="#fff" fill-opacity=".2" d="M62 132C48 112 50 86 66 74V56h28v18c16 12 18 38 4 58z"/><path fill="#fff" fill-opacity=".3" d="M150 90h140c0 28-32 42-70 42s-70-14-70-42z"/><path fill="#fff" fill-opacity=".2" d="M326 132V82c0-6 4-10 10-10h6V62h16v10h6c6 0 10 4 10 10v50z"/></svg></div><div class="avatar">MO</div><div class="who"><h1>Mara Okafor</h1><div class="handle">@maraokafor.ceramics</div><p class="bio">Stoneware and porcelain, made in Oakland. The kiln opens every second Friday.</p></div><ul><li><a href="https://example.com/shop" target="_blank" rel="noopener"><span class="ico" style="--c:#FFE3B8"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10h17c0 5.2-3.6 9-8.5 9s-8.5-3.8-8.5-9z"/></svg></span><span class="txt"><span class="t">Shop the November kiln</span><span class="d">Opens Fri 8 pm PT</span></span><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8"/></svg></a></li><li><a href="https://example.com/classes" target="_blank" rel="noopener"><span class="ico" style="--c:#D7F0DC"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 3.5h5v3c0 1.5 3 2.8 3 7 0 4-2.3 7-5.5 7s-5.5-3-5.5-7c0-4.2 3-5.5 3-7z"/></svg></span><span class="txt"><span class="t">Book a wheel class</span><span class="d">Thursdays, beginners welcome</span></span><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8"/></svg></a></li><li><a href="https://example.com/commissions" target="_blank" rel="noopener"><span class="ico" style="--c:#DCE3FF"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h11v8a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/><path d="M16 9h1.5a2.5 2.5 0 0 1 0 5H16"/></svg></span><span class="txt"><span class="t">Commission a custom set</span><span class="d">3 slots left</span></span><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8"/></svg></a></li><li><a href="https://example.com/glazes" target="_blank" rel="noopener"><span class="ico" style="--c:#FFD9E4"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="4.5"/><ellipse cx="12" cy="12" rx="5" ry="2.2"/></svg></span><span class="txt"><span class="t">Glaze notes, free PDF</span><span class="d">Cone 6 recipes</span></span><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8"/></svg></a></li><li><a href="https://example.com/news" target="_blank" rel="noopener"><span class="ico" style="--c:#E6DDFB"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4.5h8v2.5H8z"/><path d="M7 7h10v11.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 18.5z"/></svg></span><span class="txt"><span class="t">Studio newsletter</span><span class="d">Every second Friday</span></span><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8"/></svg></a></li><li><a href="https://example.com/instagram" target="_blank" rel="noopener"><span class="ico" style="--c:#D5EEF5"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4.5h12l-1.6 13.2a2 2 0 0 1-2 1.8H9.6a2 2 0 0 1-2-1.8z"/></svg></span><span class="txt"><span class="t">Instagram</span><span class="d">Firing videos</span></span><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8"/></svg></a></li></ul></article></main>
+</body>
+</html>
